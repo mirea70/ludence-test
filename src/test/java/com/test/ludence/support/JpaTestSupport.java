@@ -1,6 +1,9 @@
 package com.test.ludence.support;
 
 import com.test.ludence.common.config.JpaConfig;
+import com.test.ludence.heart.repository.HeartRepository;
+import com.test.ludence.heart.repository.PostHeartCountRepository;
+import com.test.ludence.post.repository.PostRepository;
 import com.test.ludence.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,4 +21,13 @@ public abstract class JpaTestSupport {
 
     @Autowired
     protected UserRepository userRepository;
+
+    @Autowired
+    protected PostRepository postRepository;
+
+    @Autowired
+    protected HeartRepository heartRepository;
+
+    @Autowired
+    protected PostHeartCountRepository postHeartCountRepository;
 }

@@ -1,0 +1,10 @@
+package com.test.ludence.heart.repository;
+
+import java.util.List;
+
+public interface HeartRepositoryCustom {
+
+    List<HeartCountByPostId> getCountsByUserId(Long userId);
+
+    long deleteByUserId(Long userId);
+}

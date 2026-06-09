@@ -40,4 +40,21 @@ class UserRepositoryTest extends JpaTestSupport {
         // then
         assertThat(found).isTrue();
     }
+
+    @Test
+    @DisplayName("활성 회원을 ID로 잠금 조회한다")
+    void findsActiveUserForUpdate_whenIdMatches() {
+        // given
+        User user = userRepository.save(
+                User.create("sunny", "encoded-password", Instant.parse("2026-06-09T10:00:00Z"))
+        );
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        boolean found = userRepository.findActiveByIdForUpdate(user.getId()).isPresent();
+
+        // then
+        assertThat(found).isTrue();
+    }
 }

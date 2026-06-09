@@ -1,5 +1,6 @@
 package com.test.ludence.auth;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,5 +33,58 @@ class AuthIntegrationTest extends IntegrationTestSupport {
                         .content(content))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("Bearer 토큰 없이 회원 탈퇴를 요청하면 401을 반환한다")
+    void returnsUnauthorized_whenWithdrawalHasNoBearerToken() throws Exception {
+        // when & then
+        mockMvc.perform(delete("/auth/me"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("잘못된 Bearer 토큰으로 회원 탈퇴를 요청하면 표준 에러 형식의 401을 반환한다")
+    void returnsUnauthorizedErrorResponse_whenWithdrawalHasInvalidBearerToken() throws Exception {
+        // when & then
+        mockMvc.perform(delete("/auth/me")
+                        .header("Authorization", "Bearer invalid-token"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("AUTH_003"))
+                .andExpect(jsonPath("$.path").value("/auth/me"));
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 후 기존 토큰과 계정은 사용할 수 없고 기존 username으로 재가입할 수 있다")
+    void invalidatesCredentialsAndAllowsUsernameReuse_whenUserWithdraws() throws Exception {
+        // given
+        AuthRequest request = new AuthRequest("sunny", "password123");
+        String content = objectMapper.writeValueAsString(request);
+        String signupResponse = mockMvc.perform(post("/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        String token = objectMapper.readTree(signupResponse).get("token").asText();
+
+        // when & then
+        mockMvc.perform(delete("/auth/me")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(delete("/auth/me")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(post("/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isCreated());
     }
 }

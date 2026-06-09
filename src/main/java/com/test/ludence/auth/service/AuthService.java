@@ -2,6 +2,7 @@ package com.test.ludence.auth.service;
 
 import com.test.ludence.auth.domain.info.AuthErrorInfo;
 import com.test.ludence.auth.dto.request.AuthRequest;
+import com.test.ludence.auth.dto.response.TokenResponse;
 import com.test.ludence.auth.security.JwtTokenProvider;
 import com.test.ludence.auth.security.PasswordHasher;
 import com.test.ludence.common.error.exception.BusinessException;
@@ -24,7 +25,7 @@ public class AuthService {
     private final Clock clock;
 
     @Transactional
-    public String signup(AuthRequest request) {
+    public TokenResponse signup(AuthRequest request) {
         validateUsernameAvailable(request.username());
 
         User user = User.create(
@@ -32,15 +33,15 @@ public class AuthService {
                 passwordHasher.hash(request.password()),
                 clock.instant()
         );
-        return jwtTokenProvider.createToken(save(user));
+        return new TokenResponse(jwtTokenProvider.createToken(save(user)));
     }
 
-    public String login(AuthRequest request) {
+    public TokenResponse login(AuthRequest request) {
         User user = userRepository.findByUsernameValueAndDeletedAtIsNull(request.username())
                 .filter(found -> passwordHasher.matches(request.password(), found.getPassword()))
                 .orElseThrow(() -> new BusinessException(AuthErrorInfo.INVALID_CREDENTIALS));
 
-        return jwtTokenProvider.createToken(user);
+        return new TokenResponse(jwtTokenProvider.createToken(user));
     }
 
     private void validateUsernameAvailable(String username) {

@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import com.test.ludence.auth.dto.request.AuthRequest;
+import com.test.ludence.auth.dto.response.TokenResponse;
 import com.test.ludence.auth.security.JwtTokenProvider;
 import com.test.ludence.auth.security.PasswordHasher;
 import com.test.ludence.common.error.exception.BusinessException;
@@ -51,10 +52,10 @@ class AuthServiceTest {
         given(jwtTokenProvider.createToken(org.mockito.ArgumentMatchers.any())).willReturn("jwt-token");
 
         // when
-        String token = authService.signup(request);
+        TokenResponse response = authService.signup(request);
 
         // then
-        assertThat(token).isEqualTo("jwt-token");
+        assertThat(response.token()).isEqualTo("jwt-token");
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).saveAndFlush(captor.capture());
         assertThat(captor.getValue().getPassword()).isEqualTo("encoded-password");
@@ -84,9 +85,9 @@ class AuthServiceTest {
         given(jwtTokenProvider.createToken(user)).willReturn("jwt-token");
 
         // when
-        String token = authService.login(new AuthRequest("sunny", "password123"));
+        TokenResponse response = authService.login(new AuthRequest("sunny", "password123"));
 
         // then
-        assertThat(token).isEqualTo("jwt-token");
+        assertThat(response.token()).isEqualTo("jwt-token");
     }
 }
