@@ -1,9 +1,12 @@
 package com.test.ludence.user.repository;
 
+import static com.test.ludence.post.domain.entity.QPost.post;
 import static com.test.ludence.user.domain.entity.QUser.user;
 
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.test.ludence.user.domain.entity.User;
+import com.test.ludence.user.dto.response.UserDetailResponse;
 import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,28 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                         user.deletedAt.isNull()
                 )
                 .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .fetchOne());
+    }
+
+    @Override
+    public Optional<UserDetailResponse> findActiveDetailByUsername(String username) {
+        return Optional.ofNullable(queryFactory
+                .select(Projections.constructor(
+                        UserDetailResponse.class,
+                        user.username.value,
+                        post.id.count(),
+                        user.createdAt
+                ))
+                .from(user)
+                .leftJoin(post).on(
+                        post.authorId.eq(user.id),
+                        post.deletedAt.isNull()
+                )
+                .where(
+                        user.username.value.eq(username),
+                        user.deletedAt.isNull()
+                )
+                .groupBy(user.id, user.username.value, user.createdAt)
                 .fetchOne());
     }
 }

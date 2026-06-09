@@ -5,6 +5,7 @@ import com.test.ludence.auth.security.JwtAuthenticationFilter;
 import com.test.ludence.auth.security.RestAuthenticationEntryPoint;
 import com.test.ludence.auth.service.AuthService;
 import com.test.ludence.auth.service.AuthWithdrawalService;
+import com.test.ludence.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,4 +35,7 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+
+    @MockitoBean
+    protected UserService userService;
 }
