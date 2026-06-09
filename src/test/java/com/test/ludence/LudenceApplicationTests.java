@@ -1,12 +1,9 @@
 package com.test.ludence;
 
+import com.test.ludence.support.IntegrationTestSupport;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class LudenceApplicationTests {
+class LudenceApplicationTests extends IntegrationTestSupport {
 
 	@Test
 	void contextLoads() {
