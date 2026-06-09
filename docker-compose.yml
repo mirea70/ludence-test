@@ -1,0 +1,42 @@
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: db
+    environment:
+      POSTGRES_DB: ludence
+      POSTGRES_USER: ludence
+      POSTGRES_PASSWORD: ludence
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ludence -d ludence"]
+      interval: 1s
+      timeout: 2s
+      retries: 30
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/ludence
+      DB_USERNAME: ludence
+      DB_PASSWORD: ludence
+      JPA_DDL_AUTO: update
+      IMAGE_STORAGE_DIRECTORY: /data/images
+    ports:
+      - "8080:8080"
+    volumes:
+      - image-data:/data/images
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  image-data:

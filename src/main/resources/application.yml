@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: ludence
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/ludence}
+    username: ${DB_USERNAME:ludence}
+    password: ${DB_PASSWORD:ludence}
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 3MB
+
+storage:
+  image-directory: ${IMAGE_STORAGE_DIRECTORY:./data/images}

@@ -1,0 +1,8 @@
+.git
+.gradle
+.idea
+.agents
+.codex
+build
+data
+*.iml
