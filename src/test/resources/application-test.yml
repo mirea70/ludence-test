@@ -10,3 +10,8 @@ spring:
 
 storage:
   image-directory: ./build/test-images
+
+auth:
+  jwt:
+    secret: test-jwt-secret
+    expiration-seconds: 3600

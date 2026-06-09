@@ -16,3 +16,8 @@ spring:
 
 storage:
   image-directory: ${IMAGE_STORAGE_DIRECTORY:./data/images}
+
+auth:
+  jwt:
+    secret: ${JWT_SECRET:ludence-local-jwt-secret-change-me}
+    expiration-seconds: ${JWT_EXPIRATION_SECONDS:86400}

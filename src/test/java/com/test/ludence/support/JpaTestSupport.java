@@ -1,6 +1,7 @@
 package com.test.ludence.support;
 
 import com.test.ludence.common.config.JpaConfig;
+import com.test.ludence.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -14,4 +15,7 @@ public abstract class JpaTestSupport {
 
     @Autowired
     protected EntityManager entityManager;
+
+    @Autowired
+    protected UserRepository userRepository;
 }
