@@ -4,6 +4,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -11,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.test.ludence.auth.security.AuthenticatedUser;
 import com.test.ludence.post.dto.request.PostCreateRequest;
+import com.test.ludence.post.dto.request.PostUpdateRequest;
 import com.test.ludence.post.dto.response.PostIdResponse;
 import com.test.ludence.post.dto.response.PostDetailResponse;
 import com.test.ludence.post.dto.response.PostResponse;
@@ -112,5 +114,64 @@ class PostControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.post.heartCount").value(3))
                 .andExpect(jsonPath("$.post.hearted").value(false));
         verify(postQueryService).getPost(1L, null);
+    }
+
+    @Test
+    @DisplayName("유효한 포스트 수정 요청이면 200과 포스트 ID를 반환한다")
+    void returnsOkAndId_whenUpdateRequestIsValid() throws Exception {
+        // given
+        AuthenticatedUser user = new AuthenticatedUser(1L);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(user, null)
+        );
+        PostUpdateRequest request = new PostUpdateRequest("updated", "description");
+        given(postUpdateService.updatePost(1L, 10L, request)).willReturn(new PostIdResponse(10L));
+
+        // when & then
+        mockMvc.perform(patch("/posts/10")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(10));
+        verify(postUpdateService).updatePost(1L, 10L, request);
+    }
+
+    @Test
+    @DisplayName("포스트 수정 요청의 제목이 비어 있으면 변경 없이 200을 반환한다")
+    void returnsOk_whenUpdateTitleIsBlank() throws Exception {
+        // given
+        AuthenticatedUser user = new AuthenticatedUser(1L);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(user, null)
+        );
+
+        PostUpdateRequest request = new PostUpdateRequest(" ", "description");
+        given(postUpdateService.updatePost(1L, 10L, request)).willReturn(new PostIdResponse(10L));
+
+        // when & then
+        mockMvc.perform(patch("/posts/10")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(10));
+    }
+
+    @Test
+    @DisplayName("포스트 수정 요청의 제목과 설명이 null이면 200을 반환한다")
+    void returnsOk_whenUpdateFieldsAreNull() throws Exception {
+        // given
+        AuthenticatedUser user = new AuthenticatedUser(1L);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(user, null)
+        );
+        PostUpdateRequest request = new PostUpdateRequest(null, null);
+        given(postUpdateService.updatePost(1L, 10L, request)).willReturn(new PostIdResponse(10L));
+
+        // when & then
+        mockMvc.perform(patch("/posts/10")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(10));
     }
 }

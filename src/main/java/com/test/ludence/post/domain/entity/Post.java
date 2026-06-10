@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.Objects;
 import lombok.Getter;
 
 @Getter
@@ -99,6 +100,24 @@ public class Post {
         this.editedAt = editedAt;
     }
 
+    public void updateByAuthor(Long authorId, String title, String description, Instant editedAt) {
+        validateAuthor(authorId);
+        update(title, description, editedAt);
+    }
+
+    public void patchByAuthor(Long authorId, String title, String description, Instant editedAt) {
+        validateAuthor(authorId);
+        validateActive();
+        validateTime(editedAt);
+
+        boolean changed = patchTitle(title);
+        changed |= patchDescription(description);
+
+        if (changed) {
+            this.editedAt = editedAt;
+        }
+    }
+
     public void delete(Instant deletedAt) {
         validateActive();
         validateTime(deletedAt);
@@ -109,9 +128,36 @@ public class Post {
         authorId = null;
     }
 
+    private boolean patchTitle(String title) {
+        if (title == null || title.isBlank() || Objects.equals(getTitle(), title)) {
+            return false;
+        }
+        this.title = new PostTitle(title);
+        return true;
+    }
+
+    private boolean patchDescription(String description) {
+        if (description == null) {
+            return false;
+        }
+
+        String normalizedDescription = description.isBlank() ? null : description;
+        if (Objects.equals(getDescription(), normalizedDescription)) {
+            return false;
+        }
+        this.description = new PostDescription(normalizedDescription);
+        return true;
+    }
+
     private void validateActive() {
         if (!isActive()) {
             throw new DomainException(PostErrorInfo.ALREADY_DELETED);
+        }
+    }
+
+    private void validateAuthor(Long authorId) {
+        if (!Objects.equals(this.authorId, authorId)) {
+            throw new DomainException(PostErrorInfo.FORBIDDEN);
         }
     }
 

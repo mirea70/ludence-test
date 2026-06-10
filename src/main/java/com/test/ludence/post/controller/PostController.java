@@ -2,11 +2,13 @@ package com.test.ludence.post.controller;
 
 import com.test.ludence.auth.security.AuthenticatedUser;
 import com.test.ludence.post.dto.request.PostCreateRequest;
+import com.test.ludence.post.dto.request.PostUpdateRequest;
 import com.test.ludence.post.dto.response.PostIdResponse;
 import com.test.ludence.post.dto.response.PostResponse;
 import com.test.ludence.post.service.PostCreateService;
 import com.test.ludence.post.service.PostImageService;
 import com.test.ludence.post.service.PostQueryService;
+import com.test.ludence.post.service.PostUpdateService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +19,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -29,6 +33,7 @@ public class PostController {
     private final PostCreateService postCreateService;
     private final PostImageService postImageService;
     private final PostQueryService postQueryService;
+    private final PostUpdateService postUpdateService;
 
     @PostMapping
     public ResponseEntity<PostIdResponse> createPost(
@@ -53,5 +58,14 @@ public class PostController {
     ) {
         Long currentUserId = user == null ? null : user.id();
         return ResponseEntity.ok(postQueryService.getPost(id, currentUserId));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<PostIdResponse> updatePost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @Valid @RequestBody PostUpdateRequest request
+    ) {
+        return ResponseEntity.ok(postUpdateService.updatePost(user.id(), id, request));
     }
 }

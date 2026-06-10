@@ -90,4 +90,19 @@ class PostRepositoryTest extends JpaTestSupport {
         assertThat(detail.description()).isNull();
         assertThat(detail.hearted()).isFalse();
     }
+
+    @Test
+    @DisplayName("활성 포스트를 수정용으로 잠금 조회한다")
+    void findsActivePostForUpdate_whenPostIsActive() {
+        // given
+        Post post = postRepository.save(Post.create(1L, "title", null, IMAGE_KEY, CREATED_AT));
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        Post found = postRepository.findActiveByIdForUpdate(post.getId()).orElseThrow();
+
+        // then
+        assertThat(found.getId()).isEqualTo(post.getId());
+    }
 }

@@ -11,6 +11,8 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.test.ludence.post.dto.response.PostDetailResponse;
+import com.test.ludence.post.domain.entity.Post;
+import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
@@ -78,5 +80,17 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         heart.id.postId.eq(post.id)
                 )
                 .exists();
+    }
+
+    @Override
+    public Optional<Post> findActiveByIdForUpdate(Long postId) {
+        return Optional.ofNullable(queryFactory
+                .selectFrom(post)
+                .where(
+                        post.id.eq(postId),
+                        post.deletedAt.isNull()
+                )
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .fetchOne());
     }
 }

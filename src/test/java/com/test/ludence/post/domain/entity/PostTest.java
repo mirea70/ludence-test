@@ -87,4 +87,91 @@ class PostTest {
         // then
         assertThat(post.getAuthorId()).isNull();
     }
+
+    @Test
+    @DisplayName("작성자가 일치하면 포스트를 수정할 수 있다")
+    void updatesPost_whenAuthorMatches() {
+        // given
+        Post post = Post.create(1L, "before", null, IMAGE_KEY, Instant.parse("2026-06-09T10:00:00Z"));
+        Instant editedAt = Instant.parse("2026-06-10T10:00:00Z");
+
+        // when
+        post.updateByAuthor(1L, "after", "updated", editedAt);
+
+        // then
+        assertThat(post.getTitle()).isEqualTo("after");
+        assertThat(post.getDescription()).isEqualTo("updated");
+        assertThat(post.getEditedAt()).isEqualTo(editedAt);
+    }
+
+    @Test
+    @DisplayName("작성자가 일치하지 않으면 포스트를 수정할 수 없다")
+    void throwsDomainException_whenAuthorDoesNotMatch() {
+        // given
+        Post post = Post.create(1L, "before", null, IMAGE_KEY, Instant.parse("2026-06-09T10:00:00Z"));
+
+        // when & then
+        assertThatThrownBy(() -> post.updateByAuthor(
+                2L, "after", "updated", Instant.parse("2026-06-10T10:00:00Z")
+        )).isInstanceOf(DomainException.class);
+    }
+
+    @Test
+    @DisplayName("작성자가 탈퇴한 포스트는 수정할 수 없다")
+    void throwsDomainException_whenPostAuthorWasRemoved() {
+        // given
+        Post post = Post.create(1L, "before", null, IMAGE_KEY, Instant.parse("2026-06-09T10:00:00Z"));
+        post.removeAuthor();
+
+        // when & then
+        assertThatThrownBy(() -> post.updateByAuthor(
+                1L, "after", null, Instant.parse("2026-06-10T10:00:00Z")
+        )).isInstanceOf(DomainException.class);
+    }
+
+    @Test
+    @DisplayName("제목이 null이고 설명만 전달되면 설명만 수정한다")
+    void updatesOnlyDescription_whenTitleIsNull() {
+        // given
+        Instant createdAt = Instant.parse("2026-06-09T10:00:00Z");
+        Instant editedAt = Instant.parse("2026-06-10T10:00:00Z");
+        Post post = Post.create(1L, "title", "before", IMAGE_KEY, createdAt);
+
+        // when
+        post.patchByAuthor(1L, null, "after", editedAt);
+
+        // then
+        assertThat(post.getTitle()).isEqualTo("title");
+        assertThat(post.getDescription()).isEqualTo("after");
+        assertThat(post.getEditedAt()).isEqualTo(editedAt);
+    }
+
+    @Test
+    @DisplayName("설명이 빈 문자열이면 설명을 제거한다")
+    void removesDescription_whenDescriptionIsBlank() {
+        // given
+        Post post = Post.create(1L, "title", "description", IMAGE_KEY, Instant.parse("2026-06-09T10:00:00Z"));
+
+        // when
+        post.patchByAuthor(1L, null, " ", Instant.parse("2026-06-10T10:00:00Z"));
+
+        // then
+        assertThat(post.getDescription()).isNull();
+    }
+
+    @Test
+    @DisplayName("제목과 설명에 변경값이 없으면 수정 시각을 유지한다")
+    void preservesEditedAt_whenNoChangeValueExists() {
+        // given
+        Instant createdAt = Instant.parse("2026-06-09T10:00:00Z");
+        Post post = Post.create(1L, "title", "description", IMAGE_KEY, createdAt);
+
+        // when
+        post.patchByAuthor(1L, " ", null, Instant.parse("2026-06-10T10:00:00Z"));
+
+        // then
+        assertThat(post.getTitle()).isEqualTo("title");
+        assertThat(post.getDescription()).isEqualTo("description");
+        assertThat(post.getEditedAt()).isEqualTo(createdAt);
+    }
 }
