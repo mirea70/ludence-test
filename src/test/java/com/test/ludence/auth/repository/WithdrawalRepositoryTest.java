@@ -21,7 +21,9 @@ class WithdrawalRepositoryTest extends JpaTestSupport {
     @DisplayName("회원이 작성한 포스트의 작성자 연결을 모두 제거한다")
     void clearsPostAuthors() {
         // given
-        Post post = postRepository.save(Post.create(1L, "title", "description", CREATED_AT));
+        Post post = postRepository.save(Post.create(
+                1L, "title", "description", "550e8400-e29b-41d4-a716-446655440000.png", CREATED_AT
+        ));
 
         // when
         long updatedCount = postRepository.clearAuthorId(1L);

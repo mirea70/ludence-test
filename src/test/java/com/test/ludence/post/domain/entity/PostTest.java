@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Post 도메인 테스트")
 class PostTest {
 
+    private static final String IMAGE_KEY = "550e8400-e29b-41d4-a716-446655440000.png";
+
     @Test
     @DisplayName("포스트 생성 시 작성자와 내용과 생성 시각을 저장하고 활성 상태가 된다")
     void createsActivePost_whenValuesAreValid() {
@@ -18,12 +20,13 @@ class PostTest {
         Instant createdAt = Instant.parse("2026-06-09T10:00:00Z");
 
         // when
-        Post post = Post.create(1L, "my post", "description", createdAt);
+        Post post = Post.create(1L, "my post", "description", IMAGE_KEY, createdAt);
 
         // then
         assertThat(post.getAuthorId()).isEqualTo(1L);
         assertThat(post.getTitle()).isEqualTo("my post");
         assertThat(post.getDescription()).isEqualTo("description");
+        assertThat(post.getImageKey()).isEqualTo(IMAGE_KEY);
         assertThat(post.getCreatedAt()).isEqualTo(createdAt);
         assertThat(post.getEditedAt()).isEqualTo(createdAt);
         assertThat(post.isActive()).isTrue();
@@ -33,7 +36,7 @@ class PostTest {
     @DisplayName("포스트 수정 시 제목과 설명과 수정 시각이 변경된다")
     void updatesPostContent_whenPostIsActive() {
         // given
-        Post post = Post.create(1L, "before", null, Instant.parse("2026-06-09T10:00:00Z"));
+        Post post = Post.create(1L, "before", null, IMAGE_KEY, Instant.parse("2026-06-09T10:00:00Z"));
         Instant editedAt = Instant.parse("2026-06-10T10:00:00Z");
 
         // when
@@ -49,7 +52,7 @@ class PostTest {
     @DisplayName("포스트 삭제 시 삭제 시각을 기록하고 비활성 상태가 된다")
     void recordsDeletedAt_whenPostIsDeleted() {
         // given
-        Post post = Post.create(1L, "title", null, Instant.parse("2026-06-09T10:00:00Z"));
+        Post post = Post.create(1L, "title", null, IMAGE_KEY, Instant.parse("2026-06-09T10:00:00Z"));
         Instant deletedAt = Instant.parse("2026-06-10T10:00:00Z");
 
         // when
@@ -64,7 +67,7 @@ class PostTest {
     @DisplayName("삭제된 포스트를 수정하면 DomainException이 발생한다")
     void throwsDomainException_whenDeletedPostIsUpdated() {
         // given
-        Post post = Post.create(1L, "title", null, Instant.parse("2026-06-09T10:00:00Z"));
+        Post post = Post.create(1L, "title", null, IMAGE_KEY, Instant.parse("2026-06-09T10:00:00Z"));
         post.delete(Instant.parse("2026-06-10T10:00:00Z"));
 
         // when & then
@@ -76,7 +79,7 @@ class PostTest {
     @DisplayName("작성자 참조를 제거하면 작성자 ID가 null이 된다")
     void removesAuthorReference_whenAuthorWithdraws() {
         // given
-        Post post = Post.create(1L, "title", null, Instant.parse("2026-06-09T10:00:00Z"));
+        Post post = Post.create(1L, "title", null, IMAGE_KEY, Instant.parse("2026-06-09T10:00:00Z"));
 
         // when
         post.removeAuthor();

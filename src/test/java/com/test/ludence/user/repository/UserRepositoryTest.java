@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 @DisplayName("UserRepository 테스트")
 class UserRepositoryTest extends JpaTestSupport {
 
+    private static final String IMAGE_KEY = "550e8400-e29b-41d4-a716-446655440000.png";
+
     @Test
     @DisplayName("username이 저장되어 있으면 존재 여부를 확인할 수 있다")
     void returnsTrue_whenUsernameExists() {
@@ -66,8 +68,10 @@ class UserRepositoryTest extends JpaTestSupport {
         // given
         Instant createdAt = Instant.parse("2026-06-09T10:00:00Z");
         User user = userRepository.save(User.create("sunny", "encoded-password", createdAt));
-        postRepository.save(Post.create(user.getId(), "active", "description", createdAt));
-        Post deletedPost = postRepository.save(Post.create(user.getId(), "deleted", "description", createdAt));
+        postRepository.save(Post.create(user.getId(), "active", "description", IMAGE_KEY, createdAt));
+        Post deletedPost = postRepository.save(Post.create(
+                user.getId(), "deleted", "description", "550e8400-e29b-41d4-a716-446655440001.png", createdAt
+        ));
         deletedPost.delete(createdAt.plusSeconds(60));
         entityManager.flush();
         entityManager.clear();
