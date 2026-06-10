@@ -2,7 +2,9 @@ package com.test.ludence.post;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -75,6 +77,25 @@ class PostCreateIntegrationTest extends IntegrationTestSupport {
         assertThat(createdImageKey).matches("[0-9a-f-]{36}\\.png");
         assertThat(createdImageKey).doesNotStartWith(createdPostId.toString());
         assertThat(Files.readAllBytes(Path.of(imageDirectory).resolve(createdImageKey))).isEqualTo(PNG_IMAGE);
+
+        mockMvc.perform(get("/posts/{id}/image", createdPostId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.IMAGE_PNG))
+                .andExpect(content().bytes(PNG_IMAGE));
+
+        Files.delete(Path.of(imageDirectory).resolve(createdImageKey));
+        mockMvc.perform(get("/posts/{id}/image", createdPostId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("POST_009"));
+    }
+
+    @Test
+    @DisplayName("활성 포스트가 없으면 이미지 조회 시 404를 반환한다")
+    void returnsNotFound_whenPostDoesNotExist() throws Exception {
+        // when & then
+        mockMvc.perform(get("/posts/{id}/image", Long.MAX_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("POST_008"));
     }
 
     private String signupAndGetToken() throws Exception {

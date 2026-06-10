@@ -3,6 +3,8 @@ package com.test.ludence.post.controller;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -16,6 +18,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -70,5 +74,20 @@ class PostControllerTest extends ControllerTestSupport {
                         .param("title", "title"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.image").exists());
+    }
+
+    @Test
+    @DisplayName("포스트 이미지를 조회하면 PNG 원본 바이트를 반환한다")
+    void returnsPngOriginalBytes_whenPostImageExists() throws Exception {
+        // given
+        byte[] image = {(byte) 0x89, 0x50, 0x4E, 0x47};
+        given(postImageService.getImage(1L)).willReturn(new ByteArrayResource(image));
+
+        // when & then
+        mockMvc.perform(get("/posts/1/image"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.IMAGE_PNG))
+                .andExpect(content().bytes(image));
+        verify(postImageService).getImage(1L);
     }
 }

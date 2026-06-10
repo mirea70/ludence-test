@@ -13,6 +13,7 @@ import com.test.ludence.common.storage.StagedImage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.core.io.Resource;
 
 @DisplayName("FileSystemImageStorage 테스트")
 class FileSystemImageStorageTest {
@@ -64,6 +65,33 @@ class FileSystemImageStorageTest {
         assertThatThrownBy(() -> storage.stage(new ByteArrayInputStream(image)))
                 .isInstanceOf(BusinessException.class);
         assertThat(directory.toFile().list()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("저장된 이미지 키로 원본 파일 리소스를 조회한다")
+    void returnsOriginalFileResource_whenImageExists() throws Exception {
+        // given
+        FileSystemImageStorage storage = new FileSystemImageStorage(directory.toString());
+        byte[] image = pngBytes(128);
+        StagedImage stagedImage = storage.stage(new ByteArrayInputStream(image));
+        storage.commit(stagedImage);
+
+        // when
+        Resource resource = storage.get(stagedImage.key());
+
+        // then
+        assertThat(resource.getInputStream().readAllBytes()).isEqualTo(image);
+    }
+
+    @Test
+    @DisplayName("이미지 키에 해당하는 파일이 없으면 BusinessException이 발생한다")
+    void throwsBusinessException_whenImageDoesNotExist() {
+        // given
+        FileSystemImageStorage storage = new FileSystemImageStorage(directory.toString());
+
+        // when & then
+        assertThatThrownBy(() -> storage.get("550e8400-e29b-41d4-a716-446655440000.png"))
+                .isInstanceOf(BusinessException.class);
     }
 
     private byte[] pngBytes(int size) {

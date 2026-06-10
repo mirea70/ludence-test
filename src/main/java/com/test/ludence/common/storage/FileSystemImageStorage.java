@@ -12,6 +12,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -61,6 +63,15 @@ public class FileSystemImageStorage implements ImageStorage {
         if (stagedImage != null) {
             deletePath(stagedImage.path());
         }
+    }
+
+    @Override
+    public Resource get(String imageKey) {
+        Resource resource = new FileSystemResource(imagePath(imageKey));
+        if (!resource.exists() || !resource.isReadable()) {
+            throw new BusinessException(PostErrorInfo.IMAGE_NOT_FOUND);
+        }
+        return resource;
     }
 
     @Override
