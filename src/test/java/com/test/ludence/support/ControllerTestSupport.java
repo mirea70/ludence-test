@@ -7,6 +7,7 @@ import com.test.ludence.auth.service.AuthService;
 import com.test.ludence.auth.service.AuthWithdrawalService;
 import com.test.ludence.post.service.PostCreateService;
 import com.test.ludence.post.service.PostImageService;
+import com.test.ludence.post.service.PostQueryService;
 import com.test.ludence.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -46,4 +47,7 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected PostImageService postImageService;
+
+    @MockitoBean
+    protected PostQueryService postQueryService;
 }

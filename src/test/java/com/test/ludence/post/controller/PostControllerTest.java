@@ -12,7 +12,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.test.ludence.auth.security.AuthenticatedUser;
 import com.test.ludence.post.dto.request.PostCreateRequest;
 import com.test.ludence.post.dto.response.PostIdResponse;
+import com.test.ludence.post.dto.response.PostDetailResponse;
+import com.test.ludence.post.dto.response.PostResponse;
 import com.test.ludence.support.ControllerTestSupport;
+import java.time.Instant;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -89,5 +92,25 @@ class PostControllerTest extends ControllerTestSupport {
                 .andExpect(content().contentType(MediaType.IMAGE_PNG))
                 .andExpect(content().bytes(image));
         verify(postImageService).getImage(1L);
+    }
+
+    @Test
+    @DisplayName("익명 사용자가 포스트를 조회하면 상세 정보와 hearted false를 반환한다")
+    void returnsPostWithNotHearted_whenUserIsAnonymous() throws Exception {
+        // given
+        Instant createdAt = Instant.parse("2026-06-10T10:00:00Z");
+        PostDetailResponse detail = new PostDetailResponse(
+                1L, "title", "description", createdAt, createdAt, "author", 3L, false
+        );
+        given(postQueryService.getPost(1L, null)).willReturn(new PostResponse(detail));
+
+        // when & then
+        mockMvc.perform(get("/posts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.post.id").value(1))
+                .andExpect(jsonPath("$.post.username").value("author"))
+                .andExpect(jsonPath("$.post.heartCount").value(3))
+                .andExpect(jsonPath("$.post.hearted").value(false));
+        verify(postQueryService).getPost(1L, null);
     }
 }

@@ -3,8 +3,10 @@ package com.test.ludence.post.controller;
 import com.test.ludence.auth.security.AuthenticatedUser;
 import com.test.ludence.post.dto.request.PostCreateRequest;
 import com.test.ludence.post.dto.response.PostIdResponse;
+import com.test.ludence.post.dto.response.PostResponse;
 import com.test.ludence.post.service.PostCreateService;
 import com.test.ludence.post.service.PostImageService;
+import com.test.ludence.post.service.PostQueryService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class PostController {
 
     private final PostCreateService postCreateService;
     private final PostImageService postImageService;
+    private final PostQueryService postQueryService;
 
     @PostMapping
     public ResponseEntity<PostIdResponse> createPost(
@@ -41,5 +44,14 @@ public class PostController {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
                 .body(postImageService.getImage(id));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PostResponse> getPost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        Long currentUserId = user == null ? null : user.id();
+        return ResponseEntity.ok(postQueryService.getPost(id, currentUserId));
     }
 }

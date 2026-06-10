@@ -83,6 +83,15 @@ class PostCreateIntegrationTest extends IntegrationTestSupport {
                 .andExpect(content().contentType(MediaType.IMAGE_PNG))
                 .andExpect(content().bytes(PNG_IMAGE));
 
+        mockMvc.perform(get("/posts/{id}", createdPostId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.post.id").value(createdPostId))
+                .andExpect(jsonPath("$.post.title").value("title"))
+                .andExpect(jsonPath("$.post.description").value("description"))
+                .andExpect(jsonPath("$.post.username").value("sunny"))
+                .andExpect(jsonPath("$.post.heartCount").value(0))
+                .andExpect(jsonPath("$.post.hearted").value(false));
+
         Files.delete(Path.of(imageDirectory).resolve(createdImageKey));
         mockMvc.perform(get("/posts/{id}/image", createdPostId))
                 .andExpect(status().isNotFound())
@@ -94,6 +103,10 @@ class PostCreateIntegrationTest extends IntegrationTestSupport {
     void returnsNotFound_whenPostDoesNotExist() throws Exception {
         // when & then
         mockMvc.perform(get("/posts/{id}/image", Long.MAX_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("POST_008"));
+
+        mockMvc.perform(get("/posts/{id}", Long.MAX_VALUE))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("POST_008"));
     }

@@ -3,6 +3,10 @@ package com.test.ludence.post.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.test.ludence.post.domain.entity.Post;
+import com.test.ludence.post.dto.response.PostDetailResponse;
+import com.test.ludence.heart.domain.entity.Heart;
+import com.test.ludence.heart.domain.entity.PostHeartCount;
+import com.test.ludence.user.domain.entity.User;
 import com.test.ludence.support.JpaTestSupport;
 import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
@@ -43,5 +47,47 @@ class PostRepositoryTest extends JpaTestSupport {
 
         // then
         assertThat(found).isFalse();
+    }
+
+    @Test
+    @DisplayName("활성 포스트 상세 정보와 현재 사용자의 하트 여부를 조회한다")
+    void findsActivePostDetailWithHearted_whenUserHeartedPost() {
+        // given
+        User author = userRepository.save(User.create("author", "encoded-password", CREATED_AT));
+        User viewer = userRepository.save(User.create("viewer", "encoded-password", CREATED_AT));
+        Post post = postRepository.save(Post.create(author.getId(), "title", "description", IMAGE_KEY, CREATED_AT));
+        PostHeartCount heartCount = PostHeartCount.create(post.getId());
+        heartCount.increment();
+        postHeartCountRepository.save(heartCount);
+        heartRepository.save(Heart.create(viewer.getId(), post.getId()));
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        PostDetailResponse detail = postRepository.findActiveDetailById(post.getId(), viewer.getId()).orElseThrow();
+
+        // then
+        assertThat(detail.id()).isEqualTo(post.getId());
+        assertThat(detail.username()).isEqualTo("author");
+        assertThat(detail.heartCount()).isEqualTo(1);
+        assertThat(detail.hearted()).isTrue();
+    }
+
+    @Test
+    @DisplayName("익명 사용자가 활성 포스트 상세 정보를 조회하면 hearted는 false다")
+    void findsActivePostDetailWithNotHearted_whenUserIsAnonymous() {
+        // given
+        User author = userRepository.save(User.create("author", "encoded-password", CREATED_AT));
+        Post post = postRepository.save(Post.create(author.getId(), "title", null, IMAGE_KEY, CREATED_AT));
+        postHeartCountRepository.save(PostHeartCount.create(post.getId()));
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        PostDetailResponse detail = postRepository.findActiveDetailById(post.getId(), null).orElseThrow();
+
+        // then
+        assertThat(detail.description()).isNull();
+        assertThat(detail.hearted()).isFalse();
     }
 }
