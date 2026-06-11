@@ -1,9 +1,11 @@
 package com.test.ludence.heart.repository;
 
 import static com.test.ludence.heart.domain.entity.QHeart.heart;
+import static com.test.ludence.user.domain.entity.QUser.user;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.test.ludence.common.page.PageRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
@@ -51,5 +53,21 @@ public class HeartRepositoryImpl implements HeartRepositoryCustom {
                         heart.id.postId.eq(postId)
                 )
                 .execute();
+    }
+
+    @Override
+    public List<String> findActiveUsernamesByPostId(Long postId, PageRequest pageRequest) {
+        return queryFactory
+                .select(user.username.value)
+                .from(heart)
+                .join(user).on(
+                        user.id.eq(heart.id.userId),
+                        user.deletedAt.isNull()
+                )
+                .where(heart.id.postId.eq(postId))
+                .orderBy(user.username.value.asc())
+                .offset(pageRequest.offset())
+                .limit(pageRequest.limit())
+                .fetch();
     }
 }

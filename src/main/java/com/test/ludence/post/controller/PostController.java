@@ -1,8 +1,11 @@
 package com.test.ludence.post.controller;
 
 import com.test.ludence.auth.security.AuthenticatedUser;
+import com.test.ludence.common.page.PageRequest;
+import com.test.ludence.heart.dto.response.HeartUserPageResponse;
 import com.test.ludence.heart.service.HeartCreateService;
 import com.test.ludence.heart.service.HeartDeleteService;
+import com.test.ludence.heart.service.HeartQueryService;
 import com.test.ludence.post.dto.request.PostCreateRequest;
 import com.test.ludence.post.dto.request.PostUpdateRequest;
 import com.test.ludence.post.dto.response.PostIdResponse;
@@ -16,18 +19,19 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -38,6 +42,7 @@ public class PostController {
     private final PostCreateService postCreateService;
     private final HeartCreateService heartCreateService;
     private final HeartDeleteService heartDeleteService;
+    private final HeartQueryService heartQueryService;
     private final PostDeleteService postDeleteService;
     private final PostImageService postImageService;
     private final PostQueryService postQueryService;
@@ -68,6 +73,16 @@ public class PostController {
     ) {
         heartDeleteService.deleteHeart(user.id(), id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/hearts")
+    public ResponseEntity<HeartUserPageResponse> getPostHearts(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @RequestParam(defaultValue = "" + PageRequest.DEFAULT_PAGE) int page,
+            @RequestParam(defaultValue = "" + PageRequest.DEFAULT_LIMIT) int limit
+    ) {
+        return ResponseEntity.ok(heartQueryService.getPostHearts(user.id(), id, page, limit));
     }
 
     @GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)

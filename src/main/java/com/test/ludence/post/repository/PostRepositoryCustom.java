@@ -24,4 +24,6 @@ public interface PostRepositoryCustom {
     long countActiveByAuthorId(Long authorId);
 
     Optional<Post> findActiveByIdForUpdate(Long postId);
+
+    Optional<PostHeartAccess> findActiveHeartAccessById(Long postId);
 }

@@ -7,6 +7,7 @@ import com.test.ludence.auth.service.AuthService;
 import com.test.ludence.auth.service.AuthWithdrawalService;
 import com.test.ludence.heart.service.HeartCreateService;
 import com.test.ludence.heart.service.HeartDeleteService;
+import com.test.ludence.heart.service.HeartQueryService;
 import com.test.ludence.post.service.PostCreateService;
 import com.test.ludence.post.service.PostDeleteService;
 import com.test.ludence.post.service.PostImageService;
@@ -43,6 +44,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected HeartDeleteService heartDeleteService;
+
+    @MockitoBean
+    protected HeartQueryService heartQueryService;
 
     @MockitoBean
     protected JwtAuthenticationFilter jwtAuthenticationFilter;

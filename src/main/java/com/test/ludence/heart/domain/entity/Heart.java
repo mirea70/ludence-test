@@ -4,6 +4,7 @@ import com.test.ludence.common.error.exception.DomainException;
 import com.test.ludence.heart.domain.info.HeartErrorInfo;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
@@ -11,7 +12,10 @@ import jakarta.persistence.Transient;
 import org.springframework.data.domain.Persistable;
 
 @Entity
-@Table(name = "hearts")
+@Table(
+        name = "hearts",
+        indexes = @Index(name = "idx_hearts_post_user", columnList = "post_id, user_id")
+)
 public class Heart implements Persistable<HeartId> {
 
     @EmbeddedId

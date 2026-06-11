@@ -139,4 +139,21 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .setLockMode(LockModeType.PESSIMISTIC_WRITE)
                 .fetchOne());
     }
+
+    @Override
+    public Optional<PostHeartAccess> findActiveHeartAccessById(Long postId) {
+        return Optional.ofNullable(queryFactory
+                .select(Projections.constructor(
+                        PostHeartAccess.class,
+                        post.authorId,
+                        postHeartCount.count
+                ))
+                .from(post)
+                .join(postHeartCount).on(postHeartCount.postId.eq(post.id))
+                .where(
+                        post.id.eq(postId),
+                        post.deletedAt.isNull()
+                )
+                .fetchOne());
+    }
 }

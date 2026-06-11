@@ -335,6 +335,78 @@ class PostCreateIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
+    @DisplayName("포스트 작성자가 하트 회원 목록을 조회하면 페이지 응답을 반환한다")
+    void returnsHeartUsers_whenRequesterIsPostAuthor() throws Exception {
+        // given
+        String authorToken = signupAndGetToken("author");
+        String oldToken = signupAndGetToken("alpha_user");
+        String newToken = signupAndGetToken("zeta_user");
+        createdPostId = createPost(authorToken);
+        createdImageKey = postRepository.findById(createdPostId).orElseThrow().getImageKey();
+        mockMvc.perform(post("/posts/{id}/heart", createdPostId)
+                        .header("Authorization", "Bearer " + oldToken))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/posts/{id}/heart", createdPostId)
+                        .header("Authorization", "Bearer " + newToken))
+                .andExpect(status().isCreated());
+
+        // when & then
+        mockMvc.perform(get("/posts/{id}/hearts", createdPostId)
+                        .param("page", "1")
+                        .param("limit", "1")
+                        .header("Authorization", "Bearer " + authorToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").value(1))
+                .andExpect(jsonPath("$.limit").value(1))
+                .andExpect(jsonPath("$.total").value(2))
+                .andExpect(jsonPath("$.users[0]").value("alpha_user"));
+    }
+
+    @Test
+    @DisplayName("작성자가 아니거나 포스트가 없으면 하트 회원 목록 조회를 거부한다")
+    void rejectsHeartUserQuery_whenRequesterIsNotAuthorOrPostDoesNotExist() throws Exception {
+        // given
+        String authorToken = signupAndGetToken("author");
+        String otherToken = signupAndGetToken("other");
+        createdPostId = createPost(authorToken);
+        createdImageKey = postRepository.findById(createdPostId).orElseThrow().getImageKey();
+
+        // when & then
+        mockMvc.perform(get("/posts/{id}/hearts", createdPostId)
+                        .header("Authorization", "Bearer " + otherToken))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("POST_010"));
+
+        mockMvc.perform(get("/posts/{id}/hearts", Long.MAX_VALUE)
+                        .header("Authorization", "Bearer " + authorToken))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("POST_008"));
+    }
+
+    @Test
+    @DisplayName("인증 없이 하트 회원 목록을 조회하면 401을 반환한다")
+    void returnsUnauthorized_whenPostHeartUsersRequestIsAnonymous() throws Exception {
+        // when & then
+        mockMvc.perform(get("/posts/1/hearts"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("하트 회원 목록의 페이지 값이 유효하지 않으면 400을 반환한다")
+    void returnsBadRequest_whenPostHeartUsersPageIsInvalid() throws Exception {
+        // given
+        String authorToken = signupAndGetToken("author");
+        createdPostId = createPost(authorToken);
+        createdImageKey = postRepository.findById(createdPostId).orElseThrow().getImageKey();
+
+        // when & then
+        mockMvc.perform(get("/posts/{id}/hearts", createdPostId)
+                        .param("page", "0")
+                        .header("Authorization", "Bearer " + authorToken))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @DisplayName("작성자가 아닌 회원이 포스트를 삭제하면 403을 반환한다")
     void returnsForbidden_whenNonAuthorDeletesPost() throws Exception {
         // given

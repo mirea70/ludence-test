@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.test.ludence.auth.security.AuthenticatedUser;
+import com.test.ludence.heart.dto.response.HeartUserPageResponse;
 import com.test.ludence.post.dto.request.PostCreateRequest;
 import com.test.ludence.post.dto.request.PostUpdateRequest;
 import com.test.ludence.post.dto.response.PostIdResponse;
@@ -223,5 +224,28 @@ class PostControllerTest extends ControllerTestSupport {
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
         verify(heartDeleteService).deleteHeart(1L, 10L);
+    }
+
+    @Test
+    @DisplayName("포스트 작성자가 하트 회원 목록을 조회하면 200과 페이지 응답을 반환한다")
+    void returnsHeartUserPage_whenAuthorRequestsPostHearts() throws Exception {
+        // given
+        AuthenticatedUser user = new AuthenticatedUser(1L);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(user, null)
+        );
+        given(heartQueryService.getPostHearts(1L, 10L, 2, 5))
+                .willReturn(new HeartUserPageResponse(2, 5, 6, java.util.List.of("new")));
+
+        // when & then
+        mockMvc.perform(get("/posts/10/hearts")
+                        .param("page", "2")
+                        .param("limit", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").value(2))
+                .andExpect(jsonPath("$.limit").value(5))
+                .andExpect(jsonPath("$.total").value(6))
+                .andExpect(jsonPath("$.users[0]").value("new"));
+        verify(heartQueryService).getPostHearts(1L, 10L, 2, 5);
     }
 }
