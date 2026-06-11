@@ -12,7 +12,9 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.test.ludence.post.dto.response.PostDetailResponse;
 import com.test.ludence.post.domain.entity.Post;
+import com.test.ludence.common.page.PageRequest;
 import jakarta.persistence.LockModeType;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
@@ -67,6 +69,50 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         post.deletedAt.isNull()
                 )
                 .fetchOne());
+    }
+
+    @Override
+    public List<PostDetailResponse> findActiveDetailsByAuthorId(
+            Long authorId,
+            String username,
+            Long currentUserId,
+            PageRequest pageRequest
+    ) {
+        return queryFactory
+                .select(Projections.constructor(
+                        PostDetailResponse.class,
+                        post.id,
+                        post.title.value,
+                        post.description.value,
+                        post.createdAt,
+                        post.editedAt,
+                        Expressions.constant(username),
+                        postHeartCount.count,
+                        heartedExpression(currentUserId)
+                ))
+                .from(post)
+                .join(postHeartCount).on(postHeartCount.postId.eq(post.id))
+                .where(
+                        post.authorId.eq(authorId),
+                        post.deletedAt.isNull()
+                )
+                .orderBy(post.createdAt.desc(), post.id.desc())
+                .offset(pageRequest.offset())
+                .limit(pageRequest.limit())
+                .fetch();
+    }
+
+    @Override
+    public long countActiveByAuthorId(Long authorId) {
+        Long count = queryFactory
+                .select(post.id.count())
+                .from(post)
+                .where(
+                        post.authorId.eq(authorId),
+                        post.deletedAt.isNull()
+                )
+                .fetchOne();
+        return count == null ? 0L : count;
     }
 
     private Expression<Boolean> heartedExpression(Long currentUserId) {

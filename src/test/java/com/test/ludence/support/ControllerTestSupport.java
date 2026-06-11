@@ -11,6 +11,7 @@ import com.test.ludence.post.service.PostImageService;
 import com.test.ludence.post.service.PostQueryService;
 import com.test.ludence.post.service.PostUpdateService;
 import com.test.ludence.user.service.UserService;
+import com.test.ludence.user.service.UserPostQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -43,6 +44,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected UserService userService;
+
+    @MockitoBean
+    protected UserPostQueryService userPostQueryService;
 
     @MockitoBean
     protected PostCreateService postCreateService;

@@ -13,6 +13,25 @@ import org.junit.jupiter.api.Test;
 @DisplayName("UserRepository 테스트")
 class UserRepositoryTest extends JpaTestSupport {
 
+    @Test
+    @DisplayName("활성 회원의 username으로 회원 ID를 조회한다")
+    void findsActiveUserIdByUsername_whenUserIsActive() {
+        // given
+        User user = userRepository.save(User.create(
+                "sunny",
+                "encoded-password",
+                Instant.parse("2026-06-10T10:00:00Z")
+        ));
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        Long userId = userRepository.findActiveIdByUsername("sunny").orElseThrow();
+
+        // then
+        assertThat(userId).isEqualTo(user.getId());
+    }
+
     private static final String IMAGE_KEY = "550e8400-e29b-41d4-a716-446655440000.png";
 
     @Test

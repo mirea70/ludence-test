@@ -49,4 +49,16 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 .groupBy(user.id, user.username.value, user.createdAt)
                 .fetchOne());
     }
+
+    @Override
+    public Optional<Long> findActiveIdByUsername(String username) {
+        return Optional.ofNullable(queryFactory
+                .select(user.id)
+                .from(user)
+                .where(
+                        user.username.value.eq(username),
+                        user.deletedAt.isNull()
+                )
+                .fetchOne());
+    }
 }

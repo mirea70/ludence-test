@@ -11,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.Objects;
@@ -18,7 +19,13 @@ import lombok.Getter;
 
 @Getter
 @Entity
-@Table(name = "posts")
+@Table(
+        name = "posts",
+        indexes = @Index(
+                name = "idx_posts_author_created",
+                columnList = "author_id, created_at DESC, id DESC"
+        )
+)
 public class Post {
 
     @Id

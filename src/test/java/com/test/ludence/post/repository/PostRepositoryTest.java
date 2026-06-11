@@ -9,6 +9,8 @@ import com.test.ludence.heart.domain.entity.PostHeartCount;
 import com.test.ludence.user.domain.entity.User;
 import com.test.ludence.support.JpaTestSupport;
 import java.time.Instant;
+import java.util.List;
+import com.test.ludence.common.page.PageRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -104,5 +106,47 @@ class PostRepositoryTest extends JpaTestSupport {
 
         // then
         assertThat(found.getId()).isEqualTo(post.getId());
+    }
+
+    @Test
+    @DisplayName("회원 게시글을 최신순으로 조회하며 삭제 게시글을 제외하고 하트 정보를 계산한다")
+    void findsActivePostDetailsByAuthorId_inLatestOrder() {
+        // given
+        User author = userRepository.save(User.create("author", "encoded-password", CREATED_AT));
+        User otherAuthor = userRepository.save(User.create("other_author", "encoded-password", CREATED_AT));
+        User viewer = userRepository.save(User.create("viewer", "encoded-password", CREATED_AT));
+        Post oldPost = postRepository.save(Post.create(
+                author.getId(), "old", null, "550e8400-e29b-41d4-a716-446655440001.png", CREATED_AT
+        ));
+        Post newPost = postRepository.save(Post.create(
+                author.getId(), "new", null, "550e8400-e29b-41d4-a716-446655440002.png", CREATED_AT.plusSeconds(60)
+        ));
+        Post deletedPost = postRepository.save(Post.create(
+                author.getId(), "deleted", null, "550e8400-e29b-41d4-a716-446655440003.png", CREATED_AT.plusSeconds(120)
+        ));
+        Post otherPost = postRepository.save(Post.create(
+                otherAuthor.getId(), "other", null, "550e8400-e29b-41d4-a716-446655440004.png", CREATED_AT.plusSeconds(180)
+        ));
+        deletedPost.delete(CREATED_AT.plusSeconds(180));
+        postHeartCountRepository.save(PostHeartCount.create(oldPost.getId()));
+        PostHeartCount newPostHeartCount = PostHeartCount.create(newPost.getId());
+        newPostHeartCount.increment();
+        postHeartCountRepository.save(newPostHeartCount);
+        postHeartCountRepository.save(PostHeartCount.create(deletedPost.getId()));
+        postHeartCountRepository.save(PostHeartCount.create(otherPost.getId()));
+        heartRepository.save(Heart.create(viewer.getId(), newPost.getId()));
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        List<PostDetailResponse> posts = postRepository.findActiveDetailsByAuthorId(
+                author.getId(), "author", viewer.getId(), new PageRequest(1, 20)
+        );
+
+        // then
+        assertThat(posts).extracting(PostDetailResponse::title).containsExactly("new", "old");
+        assertThat(posts.getFirst().heartCount()).isEqualTo(1);
+        assertThat(posts.getFirst().hearted()).isTrue();
+        assertThat(postRepository.countActiveByAuthorId(author.getId())).isEqualTo(2);
     }
 }

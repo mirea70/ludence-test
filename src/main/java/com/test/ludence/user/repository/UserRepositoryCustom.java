@@ -9,4 +9,6 @@ public interface UserRepositoryCustom {
     Optional<User> findActiveByIdForUpdate(Long id);
 
     Optional<UserDetailResponse> findActiveDetailByUsername(String username);
+
+    Optional<Long> findActiveIdByUsername(String username);
 }
