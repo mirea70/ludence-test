@@ -10,7 +10,8 @@ import org.springframework.http.HttpStatus;
 public enum HeartErrorInfo implements ErrorInfo {
 
     INVALID_REFERENCE_ID(HttpStatus.BAD_REQUEST, "HEART_001", "하트 참조 ID가 유효하지 않습니다."),
-    INVALID_COUNT(HttpStatus.CONFLICT, "HEART_002", "하트 수는 0보다 작을 수 없습니다.");
+    INVALID_COUNT(HttpStatus.CONFLICT, "HEART_002", "하트 수는 0보다 작을 수 없습니다."),
+    ALREADY_EXISTS(HttpStatus.CONFLICT, "HEART_003", "이미 하트한 포스트입니다.");
 
     private final HttpStatus status;
     private final String code;

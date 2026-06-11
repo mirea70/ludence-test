@@ -19,6 +19,7 @@ class HeartTest {
         // then
         assertThat(heart.getUserId()).isEqualTo(1L);
         assertThat(heart.getPostId()).isEqualTo(2L);
+        assertThat(heart.isNew()).isTrue();
     }
 
     @Test

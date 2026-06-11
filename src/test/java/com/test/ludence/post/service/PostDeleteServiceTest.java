@@ -47,8 +47,8 @@ class PostDeleteServiceTest {
         Post post = post();
         PostHeartCount heartCount = PostHeartCount.create(10L);
         heartCount.increment();
+        given(postHeartCountRepository.findByIdForUpdate(10L)).willReturn(Optional.of(heartCount));
         given(postRepository.findActiveByIdForUpdate(10L)).willReturn(Optional.of(post));
-        given(postHeartCountRepository.findById(10L)).willReturn(Optional.of(heartCount));
         PostDeleteService service = service();
 
         // when
@@ -64,26 +64,30 @@ class PostDeleteServiceTest {
     @DisplayName("활성 포스트가 없으면 BusinessException이 발생하고 하트를 변경하지 않는다")
     void throwsBusinessException_whenActivePostDoesNotExist() {
         // given
+        given(postHeartCountRepository.findByIdForUpdate(10L))
+                .willReturn(Optional.of(PostHeartCount.create(10L)));
         given(postRepository.findActiveByIdForUpdate(10L)).willReturn(Optional.empty());
         PostDeleteService service = service();
 
         // when & then
         assertThatThrownBy(() -> service.deletePost(1L, 10L))
                 .isInstanceOf(BusinessException.class);
-        verifyNoInteractions(heartRepository, postHeartCountRepository);
+        verifyNoInteractions(heartRepository);
     }
 
     @Test
     @DisplayName("작성자가 아니면 DomainException이 발생하고 하트를 변경하지 않는다")
     void throwsDomainException_whenUserIsNotAuthor() {
         // given
+        given(postHeartCountRepository.findByIdForUpdate(10L))
+                .willReturn(Optional.of(PostHeartCount.create(10L)));
         given(postRepository.findActiveByIdForUpdate(10L)).willReturn(Optional.of(post()));
         PostDeleteService service = service();
 
         // when & then
         assertThatThrownBy(() -> service.deletePost(2L, 10L))
                 .isInstanceOf(DomainException.class);
-        verifyNoInteractions(heartRepository, postHeartCountRepository);
+        verifyNoInteractions(heartRepository);
     }
 
     private PostDeleteService service() {

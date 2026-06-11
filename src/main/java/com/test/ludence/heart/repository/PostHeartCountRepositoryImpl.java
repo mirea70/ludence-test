@@ -3,6 +3,9 @@ package com.test.ludence.heart.repository;
 import static com.test.ludence.heart.domain.entity.QPostHeartCount.postHeartCount;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.test.ludence.heart.domain.entity.PostHeartCount;
+import jakarta.persistence.LockModeType;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -20,5 +23,14 @@ public class PostHeartCountRepositoryImpl implements PostHeartCountRepositoryCus
                         postHeartCount.count.goe(amount)
                 )
                 .execute();
+    }
+
+    @Override
+    public Optional<PostHeartCount> findByIdForUpdate(Long postId) {
+        return Optional.ofNullable(queryFactory
+                .selectFrom(postHeartCount)
+                .where(postHeartCount.postId.eq(postId))
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .fetchOne());
     }
 }

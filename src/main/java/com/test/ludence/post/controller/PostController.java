@@ -1,6 +1,7 @@
 package com.test.ludence.post.controller;
 
 import com.test.ludence.auth.security.AuthenticatedUser;
+import com.test.ludence.heart.service.HeartCreateService;
 import com.test.ludence.post.dto.request.PostCreateRequest;
 import com.test.ludence.post.dto.request.PostUpdateRequest;
 import com.test.ludence.post.dto.response.PostIdResponse;
@@ -15,6 +16,7 @@ import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
     private final PostCreateService postCreateService;
+    private final HeartCreateService heartCreateService;
     private final PostDeleteService postDeleteService;
     private final PostImageService postImageService;
     private final PostQueryService postQueryService;
@@ -45,6 +48,15 @@ public class PostController {
     ) {
         PostIdResponse response = postCreateService.createPost(user.id(), request);
         return ResponseEntity.created(URI.create("/posts/" + response.id())).body(response);
+    }
+
+    @PostMapping("/{id}/heart")
+    public ResponseEntity<Void> createHeart(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        heartCreateService.createHeart(user.id(), id);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)

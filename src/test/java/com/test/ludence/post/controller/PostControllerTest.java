@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -190,5 +191,21 @@ class PostControllerTest extends ControllerTestSupport {
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
         verify(postDeleteService).deletePost(1L, 10L);
+    }
+
+    @Test
+    @DisplayName("인증된 회원이 포스트에 하트를 추가하면 201과 빈 응답을 반환한다")
+    void returnsCreatedWithoutBody_whenUserAddsHeart() throws Exception {
+        // given
+        AuthenticatedUser user = new AuthenticatedUser(1L);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(user, null)
+        );
+
+        // when & then
+        mockMvc.perform(post("/posts/10/heart"))
+                .andExpect(status().isCreated())
+                .andExpect(content().string(""));
+        verify(heartCreateService).createHeart(1L, 10L);
     }
 }

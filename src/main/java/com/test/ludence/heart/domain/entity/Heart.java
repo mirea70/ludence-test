@@ -4,14 +4,21 @@ import com.test.ludence.common.error.exception.DomainException;
 import com.test.ludence.heart.domain.info.HeartErrorInfo;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(name = "hearts")
-public class Heart {
+public class Heart implements Persistable<HeartId> {
 
     @EmbeddedId
     private HeartId id;
+
+    @Transient
+    private boolean isNew = true;
 
     protected Heart() {
     }
@@ -32,6 +39,22 @@ public class Heart {
 
     public Long getPostId() {
         return id.postId();
+    }
+
+    @Override
+    public HeartId getId() {
+        return id;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PostLoad
+    @PostPersist
+    private void markNotNew() {
+        isNew = false;
     }
 
     private static void validateId(Long id) {
