@@ -156,4 +156,49 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 )
                 .fetchOne());
     }
+
+    @Override
+    public List<PostDetailResponse> findActiveDetailsHeartedByUserId(Long userId, PageRequest pageRequest) {
+        return queryFactory
+                .select(Projections.constructor(
+                        PostDetailResponse.class,
+                        post.id,
+                        post.title.value,
+                        post.description.value,
+                        post.createdAt,
+                        post.editedAt,
+                        user.username.value,
+                        postHeartCount.count,
+                        Expressions.TRUE
+                ))
+                .from(heart)
+                .join(post).on(
+                        post.id.eq(heart.id.postId),
+                        post.deletedAt.isNull()
+                )
+                .join(postHeartCount).on(postHeartCount.postId.eq(post.id))
+                .leftJoin(user).on(
+                        user.id.eq(post.authorId),
+                        user.deletedAt.isNull()
+                )
+                .where(heart.id.userId.eq(userId))
+                .orderBy(post.createdAt.desc(), post.id.desc())
+                .offset(pageRequest.offset())
+                .limit(pageRequest.limit())
+                .fetch();
+    }
+
+    @Override
+    public long countActiveHeartedByUserId(Long userId) {
+        Long count = queryFactory
+                .select(post.id.count())
+                .from(heart)
+                .join(post).on(
+                        post.id.eq(heart.id.postId),
+                        post.deletedAt.isNull()
+                )
+                .where(heart.id.userId.eq(userId))
+                .fetchOne();
+        return count == null ? 0L : count;
+    }
 }

@@ -26,4 +26,8 @@ public interface PostRepositoryCustom {
     Optional<Post> findActiveByIdForUpdate(Long postId);
 
     Optional<PostHeartAccess> findActiveHeartAccessById(Long postId);
+
+    List<PostDetailResponse> findActiveDetailsHeartedByUserId(Long userId, PageRequest pageRequest);
+
+    long countActiveHeartedByUserId(Long userId);
 }

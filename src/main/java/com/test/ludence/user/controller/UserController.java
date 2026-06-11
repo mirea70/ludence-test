@@ -4,6 +4,7 @@ import com.test.ludence.auth.security.AuthenticatedUser;
 import com.test.ludence.common.page.PageRequest;
 import com.test.ludence.post.dto.response.PostPageResponse;
 import com.test.ludence.user.dto.response.UserResponse;
+import com.test.ludence.user.service.UserHeartQueryService;
 import com.test.ludence.user.service.UserPostQueryService;
 import com.test.ludence.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class UserController {
 
     private final UserService userService;
     private final UserPostQueryService userPostQueryService;
+    private final UserHeartQueryService userHeartQueryService;
 
     @GetMapping("/{username}")
     public ResponseEntity<UserResponse> getUser(@PathVariable String username) {
@@ -37,5 +39,15 @@ public class UserController {
     ) {
         Long currentUserId = user == null ? null : user.id();
         return ResponseEntity.ok(userPostQueryService.getUserPosts(username, page, limit, currentUserId));
+    }
+
+    @GetMapping("/{username}/hearts")
+    public ResponseEntity<PostPageResponse> getUserHearts(
+            @PathVariable String username,
+            @RequestParam(defaultValue = "" + PageRequest.DEFAULT_PAGE) int page,
+            @RequestParam(defaultValue = "" + PageRequest.DEFAULT_LIMIT) int limit,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        return ResponseEntity.ok(userHeartQueryService.getUserHearts(user.id(), username, page, limit));
     }
 }

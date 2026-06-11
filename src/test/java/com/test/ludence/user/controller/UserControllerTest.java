@@ -77,4 +77,29 @@ class UserControllerTest extends ControllerTestSupport {
                 .andExpect(status().isOk());
         verify(userPostQueryService).getUserPosts("sunny", 1, 20, null);
     }
+
+    @Test
+    @DisplayName("본인이 하트한 포스트를 조회하면 200과 페이지 응답을 반환한다")
+    void returnsPostPage_whenUserHeartsAreQueried() throws Exception {
+        // given
+        Instant createdAt = Instant.parse("2026-06-10T10:00:00Z");
+        PostDetailResponse post = new PostDetailResponse(
+                1L, "title", null, createdAt, createdAt, "author", 3L, true
+        );
+        given(userHeartQueryService.getUserHearts(7L, "sunny", 2, 10))
+                .willReturn(new PostPageResponse(2, 10, 11L, List.of(post)));
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(new com.test.ludence.auth.security.AuthenticatedUser(7L), null)
+        );
+
+        // when & then
+        mockMvc.perform(get("/users/sunny/hearts").param("page", "2").param("limit", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").value(2))
+                .andExpect(jsonPath("$.limit").value(10))
+                .andExpect(jsonPath("$.total").value(11))
+                .andExpect(jsonPath("$.posts[0].hearted").value(true));
+        verify(userHeartQueryService).getUserHearts(7L, "sunny", 2, 10);
+        SecurityContextHolder.clearContext();
+    }
 }
