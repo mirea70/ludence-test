@@ -3,6 +3,7 @@ package com.test.ludence.post.controller;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -173,5 +174,21 @@ class PostControllerTest extends ControllerTestSupport {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(10));
+    }
+
+    @Test
+    @DisplayName("인증된 작성자가 포스트를 삭제하면 204를 반환한다")
+    void returnsNoContent_whenAuthorDeletesPost() throws Exception {
+        // given
+        AuthenticatedUser user = new AuthenticatedUser(1L);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(user, null)
+        );
+
+        // when & then
+        mockMvc.perform(delete("/posts/10"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+        verify(postDeleteService).deletePost(1L, 10L);
     }
 }

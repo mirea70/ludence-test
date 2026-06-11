@@ -124,6 +124,11 @@ public class Post {
         this.deletedAt = deletedAt;
     }
 
+    public void deleteByAuthor(Long authorId, Instant deletedAt) {
+        validateAuthor(authorId);
+        delete(deletedAt);
+    }
+
     public void removeAuthor() {
         authorId = null;
     }

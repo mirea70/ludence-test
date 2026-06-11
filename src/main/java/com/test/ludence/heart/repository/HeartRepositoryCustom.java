@@ -7,4 +7,6 @@ public interface HeartRepositoryCustom {
     List<HeartCountByPostId> getCountsByUserId(Long userId);
 
     long deleteByUserId(Long userId);
+
+    long deleteByPostId(Long postId);
 }

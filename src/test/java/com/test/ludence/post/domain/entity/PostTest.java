@@ -174,4 +174,29 @@ class PostTest {
         assertThat(post.getDescription()).isEqualTo("description");
         assertThat(post.getEditedAt()).isEqualTo(createdAt);
     }
+
+    @Test
+    @DisplayName("작성자가 포스트를 삭제하면 삭제 시각을 기록한다")
+    void deletesPost_whenAuthorMatches() {
+        // given
+        Post post = Post.create(1L, "title", null, IMAGE_KEY, Instant.parse("2026-06-09T10:00:00Z"));
+        Instant deletedAt = Instant.parse("2026-06-10T10:00:00Z");
+
+        // when
+        post.deleteByAuthor(1L, deletedAt);
+
+        // then
+        assertThat(post.getDeletedAt()).isEqualTo(deletedAt);
+    }
+
+    @Test
+    @DisplayName("작성자가 아니면 포스트를 삭제할 수 없다")
+    void throwsDomainException_whenNonAuthorDeletesPost() {
+        // given
+        Post post = Post.create(1L, "title", null, IMAGE_KEY, Instant.parse("2026-06-09T10:00:00Z"));
+
+        // when & then
+        assertThatThrownBy(() -> post.deleteByAuthor(2L, Instant.parse("2026-06-10T10:00:00Z")))
+                .isInstanceOf(DomainException.class);
+    }
 }

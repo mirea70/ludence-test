@@ -2,6 +2,7 @@ package com.test.ludence.post;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -12,6 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.test.ludence.auth.dto.request.AuthRequest;
+import com.test.ludence.heart.domain.entity.Heart;
+import com.test.ludence.heart.domain.entity.PostHeartCount;
+import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.post.dto.request.PostUpdateRequest;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
 import com.test.ludence.post.repository.PostRepository;
@@ -39,6 +43,9 @@ class PostCreateIntegrationTest extends IntegrationTestSupport {
 
     @Autowired
     private PostHeartCountRepository postHeartCountRepository;
+
+    @Autowired
+    private HeartRepository heartRepository;
 
     @Value("${storage.image-directory}")
     private String imageDirectory;
@@ -186,6 +193,60 @@ class PostCreateIntegrationTest extends IntegrationTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new PostUpdateRequest("updated", null))))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("작성자가 포스트를 삭제하면 조회를 차단하고 이미지 원본은 보존한다")
+    void blocksPostReadsAndPreservesImage_whenAuthorDeletesPost() throws Exception {
+        // given
+        String token = signupAndGetToken("author");
+        createdPostId = createPost(token);
+        createdImageKey = postRepository.findById(createdPostId).orElseThrow().getImageKey();
+        Path imagePath = Path.of(imageDirectory).resolve(createdImageKey);
+        PostHeartCount heartCount = postHeartCountRepository.findById(createdPostId).orElseThrow();
+        heartRepository.save(Heart.create(100L, createdPostId));
+        heartRepository.save(Heart.create(200L, createdPostId));
+        heartCount.increment();
+        heartCount.increment();
+
+        // when & then
+        mockMvc.perform(delete("/posts/{id}", createdPostId)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        mockMvc.perform(get("/posts/{id}", createdPostId))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/posts/{id}/image", createdPostId))
+                .andExpect(status().isNotFound());
+        assertThat(heartRepository.count()).isZero();
+        assertThat(postHeartCountRepository.findById(createdPostId).orElseThrow().getCount()).isZero();
+        assertThat(Files.exists(imagePath)).isTrue();
+    }
+
+    @Test
+    @DisplayName("인증 없이 포스트를 삭제하면 401을 반환한다")
+    void returnsUnauthorized_whenDeleteRequestIsAnonymous() throws Exception {
+        // when & then
+        mockMvc.perform(delete("/posts/1"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("작성자가 아닌 회원이 포스트를 삭제하면 403을 반환한다")
+    void returnsForbidden_whenNonAuthorDeletesPost() throws Exception {
+        // given
+        String authorToken = signupAndGetToken("author");
+        String otherToken = signupAndGetToken("other");
+        createdPostId = createPost(authorToken);
+        createdImageKey = postRepository.findById(createdPostId).orElseThrow().getImageKey();
+
+        // when & then
+        mockMvc.perform(delete("/posts/{id}", createdPostId)
+                        .header("Authorization", "Bearer " + otherToken))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/posts/{id}", createdPostId))
+                .andExpect(status().isOk());
     }
 
     private String signupAndGetToken() throws Exception {
