@@ -41,4 +41,15 @@ public class HeartRepositoryImpl implements HeartRepositoryCustom {
                 .where(heart.id.postId.eq(postId))
                 .execute();
     }
+
+    @Override
+    public long deleteByUserIdAndPostId(Long userId, Long postId) {
+        return queryFactory
+                .delete(heart)
+                .where(
+                        heart.id.userId.eq(userId),
+                        heart.id.postId.eq(postId)
+                )
+                .execute();
+    }
 }

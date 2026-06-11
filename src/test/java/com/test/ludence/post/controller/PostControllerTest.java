@@ -208,4 +208,20 @@ class PostControllerTest extends ControllerTestSupport {
                 .andExpect(content().string(""));
         verify(heartCreateService).createHeart(1L, 10L);
     }
+
+    @Test
+    @DisplayName("인증된 회원이 포스트의 하트를 삭제하면 204와 빈 응답을 반환한다")
+    void returnsNoContentWithoutBody_whenUserDeletesHeart() throws Exception {
+        // given
+        AuthenticatedUser user = new AuthenticatedUser(1L);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(user, null)
+        );
+
+        // when & then
+        mockMvc.perform(delete("/posts/10/heart"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+        verify(heartDeleteService).deleteHeart(1L, 10L);
+    }
 }

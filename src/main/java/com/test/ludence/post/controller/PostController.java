@@ -2,6 +2,7 @@ package com.test.ludence.post.controller;
 
 import com.test.ludence.auth.security.AuthenticatedUser;
 import com.test.ludence.heart.service.HeartCreateService;
+import com.test.ludence.heart.service.HeartDeleteService;
 import com.test.ludence.post.dto.request.PostCreateRequest;
 import com.test.ludence.post.dto.request.PostUpdateRequest;
 import com.test.ludence.post.dto.response.PostIdResponse;
@@ -36,6 +37,7 @@ public class PostController {
 
     private final PostCreateService postCreateService;
     private final HeartCreateService heartCreateService;
+    private final HeartDeleteService heartDeleteService;
     private final PostDeleteService postDeleteService;
     private final PostImageService postImageService;
     private final PostQueryService postQueryService;
@@ -57,6 +59,15 @@ public class PostController {
     ) {
         heartCreateService.createHeart(user.id(), id);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/{id}/heart")
+    public ResponseEntity<Void> deleteHeart(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        heartDeleteService.deleteHeart(user.id(), id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)

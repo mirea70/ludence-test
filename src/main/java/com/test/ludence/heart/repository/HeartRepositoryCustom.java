@@ -9,4 +9,6 @@ public interface HeartRepositoryCustom {
     long deleteByUserId(Long userId);
 
     long deleteByPostId(Long postId);
+
+    long deleteByUserIdAndPostId(Long userId, Long postId);
 }

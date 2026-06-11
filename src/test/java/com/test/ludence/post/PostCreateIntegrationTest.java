@@ -281,6 +281,60 @@ class PostCreateIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
+    @DisplayName("인증된 회원이 하트를 삭제하면 204를 반환하고 하트 정보를 갱신한다")
+    void deletesHeartAndUpdatesPostDetail_whenHeartExists() throws Exception {
+        // given
+        String authorToken = signupAndGetToken("author");
+        String viewerToken = signupAndGetToken("viewer");
+        createdPostId = createPost(authorToken);
+        createdImageKey = postRepository.findById(createdPostId).orElseThrow().getImageKey();
+        mockMvc.perform(post("/posts/{id}/heart", createdPostId)
+                        .header("Authorization", "Bearer " + viewerToken))
+                .andExpect(status().isCreated());
+
+        // when & then
+        mockMvc.perform(delete("/posts/{id}/heart", createdPostId)
+                        .header("Authorization", "Bearer " + viewerToken))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        mockMvc.perform(get("/posts/{id}", createdPostId)
+                        .header("Authorization", "Bearer " + viewerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.post.heartCount").value(0))
+                .andExpect(jsonPath("$.post.hearted").value(false));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 하트 또는 포스트를 삭제하면 404를 반환한다")
+    void returnsNotFound_whenDeletedHeartOrPostDoesNotExist() throws Exception {
+        // given
+        String authorToken = signupAndGetToken("author");
+        String viewerToken = signupAndGetToken("viewer");
+        createdPostId = createPost(authorToken);
+        createdImageKey = postRepository.findById(createdPostId).orElseThrow().getImageKey();
+
+        // when & then
+        mockMvc.perform(delete("/posts/{id}/heart", createdPostId)
+                        .header("Authorization", "Bearer " + viewerToken))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("HEART_004"));
+
+        mockMvc.perform(delete("/posts/{id}/heart", Long.MAX_VALUE)
+                        .header("Authorization", "Bearer " + viewerToken))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("POST_008"));
+    }
+
+    @Test
+    @DisplayName("인증 없이 하트를 삭제하면 401을 반환한다")
+    void returnsUnauthorized_whenDeleteHeartRequestIsAnonymous() throws Exception {
+        // when & then
+        mockMvc.perform(delete("/posts/1/heart"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @DisplayName("작성자가 아닌 회원이 포스트를 삭제하면 403을 반환한다")
     void returnsForbidden_whenNonAuthorDeletesPost() throws Exception {
         // given
