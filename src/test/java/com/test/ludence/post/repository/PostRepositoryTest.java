@@ -149,4 +149,71 @@ class PostRepositoryTest extends JpaTestSupport {
         assertThat(posts.getFirst().hearted()).isTrue();
         assertThat(postRepository.countActiveByAuthorId(author.getId())).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("제목 또는 설명에 검색어가 포함된 활성 게시글을 최신순으로 조회한다")
+    void findsActivePostDetailsByQuery_inLatestOrder() {
+        // given
+        User author = userRepository.save(User.create("author", "encoded-password", CREATED_AT));
+        User viewer = userRepository.save(User.create("viewer", "encoded-password", CREATED_AT));
+        Post oldTitleMatch = savePost(author.getId(), "Spring guide", null, 10, 60);
+        Post newDescriptionMatch = savePost(author.getId(), "JPA", "SPRING data", 11, 120);
+        Post notMatched = savePost(author.getId(), "Java", "querydsl", 12, 180);
+        Post deletedMatch = savePost(author.getId(), "spring deleted", null, 13, 240);
+        deletedMatch.delete(CREATED_AT.plusSeconds(300));
+        PostHeartCount heartCount = PostHeartCount.create(newDescriptionMatch.getId());
+        heartCount.increment();
+        postHeartCountRepository.save(heartCount);
+        heartRepository.save(Heart.create(viewer.getId(), newDescriptionMatch.getId()));
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        List<PostDetailResponse> posts = postRepository.findActiveDetailsByQuery(
+                "spring", viewer.getId(), new PageRequest(1, 20)
+        );
+
+        // then
+        assertThat(posts).extracting(PostDetailResponse::title).containsExactly("JPA", "Spring guide");
+        assertThat(posts.getFirst().heartCount()).isEqualTo(1);
+        assertThat(posts.getFirst().hearted()).isTrue();
+        assertThat(postRepository.countActiveByQuery("spring")).isEqualTo(2);
+        assertThat(notMatched.getId()).isNotNull();
+        assertThat(deletedMatch.getId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("검색어가 없으면 활성 게시글 전체를 최신순으로 조회한다")
+    void findsAllActivePostDetails_inLatestOrder_whenQueryIsNull() {
+        // given
+        User author = userRepository.save(User.create("author", "encoded-password", CREATED_AT));
+        Post oldPost = savePost(author.getId(), "old", null, 20, 60);
+        Post newPost = savePost(author.getId(), "new", null, 21, 120);
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        List<PostDetailResponse> posts = postRepository.findActiveDetailsByQuery(
+                null, null, new PageRequest(1, 20)
+        );
+
+        // then
+        assertThat(posts).extracting(PostDetailResponse::title).containsExactly("new", "old");
+        assertThat(posts).allMatch(post -> !post.hearted());
+        assertThat(postRepository.countActiveByQuery(null)).isEqualTo(2);
+        assertThat(oldPost.getId()).isNotNull();
+        assertThat(newPost.getId()).isNotNull();
+    }
+
+    private Post savePost(Long authorId, String title, String description, int imageSuffix, long createdOffset) {
+        Post post = postRepository.save(Post.create(
+                authorId,
+                title,
+                description,
+                "550e8400-e29b-41d4-a716-4466554400" + imageSuffix + ".png",
+                CREATED_AT.plusSeconds(createdOffset)
+        ));
+        postHeartCountRepository.save(PostHeartCount.create(post.getId()));
+        return post;
+    }
 }

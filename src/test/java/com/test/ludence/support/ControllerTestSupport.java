@@ -13,6 +13,7 @@ import com.test.ludence.post.service.PostDeleteService;
 import com.test.ludence.post.service.PostImageService;
 import com.test.ludence.post.service.PostQueryService;
 import com.test.ludence.post.service.PostUpdateService;
+import com.test.ludence.search.service.PostSearchService;
 import com.test.ludence.user.service.UserService;
 import com.test.ludence.user.service.UserHeartQueryService;
 import com.test.ludence.user.service.UserPostQueryService;
@@ -78,4 +79,7 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected PostUpdateService postUpdateService;
+
+    @MockitoBean
+    protected PostSearchService postSearchService;
 }

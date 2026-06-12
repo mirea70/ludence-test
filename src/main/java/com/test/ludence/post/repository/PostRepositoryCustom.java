@@ -30,4 +30,12 @@ public interface PostRepositoryCustom {
     List<PostDetailResponse> findActiveDetailsHeartedByUserId(Long userId, PageRequest pageRequest);
 
     long countActiveHeartedByUserId(Long userId);
+
+    List<PostDetailResponse> findActiveDetailsByQuery(
+            String query,
+            Long currentUserId,
+            PageRequest pageRequest
+    );
+
+    long countActiveByQuery(String query);
 }

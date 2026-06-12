@@ -7,6 +7,7 @@ import static com.test.ludence.user.domain.entity.QUser.user;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -200,5 +201,60 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .where(heart.id.userId.eq(userId))
                 .fetchOne();
         return count == null ? 0L : count;
+    }
+
+    @Override
+    public List<PostDetailResponse> findActiveDetailsByQuery(
+            String query,
+            Long currentUserId,
+            PageRequest pageRequest
+    ) {
+        return queryFactory
+                .select(Projections.constructor(
+                        PostDetailResponse.class,
+                        post.id,
+                        post.title.value,
+                        post.description.value,
+                        post.createdAt,
+                        post.editedAt,
+                        user.username.value,
+                        postHeartCount.count,
+                        heartedExpression(currentUserId)
+                ))
+                .from(post)
+                .join(postHeartCount).on(postHeartCount.postId.eq(post.id))
+                .leftJoin(user).on(
+                        user.id.eq(post.authorId),
+                        user.deletedAt.isNull()
+                )
+                .where(
+                        post.deletedAt.isNull(),
+                        containsQuery(query)
+                )
+                .orderBy(post.createdAt.desc(), post.id.desc())
+                .offset(pageRequest.offset())
+                .limit(pageRequest.limit())
+                .fetch();
+    }
+
+    @Override
+    public long countActiveByQuery(String query) {
+        Long count = queryFactory
+                .select(post.id.count())
+                .from(post)
+                .where(
+                        post.deletedAt.isNull(),
+                        containsQuery(query)
+                )
+                .fetchOne();
+        return count == null ? 0L : count;
+    }
+
+    private BooleanExpression containsQuery(String query) {
+        if (query == null) {
+            return null;
+        }
+        return post.title.value.containsIgnoreCase(query)
+                .or(post.description.value.containsIgnoreCase(query));
     }
 }
