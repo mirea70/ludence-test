@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import static org.mockito.Mockito.verify;
 
 @DisplayName("PostQueryService 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -23,19 +25,23 @@ class PostQueryServiceTest {
     @Mock
     private PostRepository postRepository;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     @Test
     @DisplayName("활성 포스트가 존재하면 상세 응답을 반환한다")
     void returnsPostResponse_whenActivePostExists() {
         // given
         PostDetailResponse detail = detail();
         given(postRepository.findActiveDetailById(1L, 2L)).willReturn(Optional.of(detail));
-        PostQueryService service = new PostQueryService(postRepository);
+        PostQueryService service = new PostQueryService(postRepository, eventPublisher);
 
         // when
         PostResponse response = service.getPost(1L, 2L);
 
         // then
         assertThat(response.post()).isEqualTo(detail);
+        verify(eventPublisher).publishEvent(new com.test.ludence.post.domain.event.PostViewedEvent(1L, 2L));
     }
 
     @Test
@@ -43,7 +49,7 @@ class PostQueryServiceTest {
     void throwsBusinessException_whenActivePostDoesNotExist() {
         // given
         given(postRepository.findActiveDetailById(1L, null)).willReturn(Optional.empty());
-        PostQueryService service = new PostQueryService(postRepository);
+        PostQueryService service = new PostQueryService(postRepository, eventPublisher);
 
         // when & then
         assertThatThrownBy(() -> service.getPost(1L, null))

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @DisplayName("PostSearchService 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -24,6 +25,9 @@ class PostSearchServiceTest {
 
     @Mock
     private PostRepository postRepository;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @Test
     @DisplayName("검색어와 페이지 조건으로 게시글 검색 결과를 반환한다")
@@ -33,7 +37,7 @@ class PostSearchServiceTest {
         PostDetailResponse detail = detail();
         given(postRepository.findActiveDetailsByQuery("spring", 7L, pageRequest)).willReturn(List.of(detail));
         given(postRepository.countActiveByQuery("spring")).willReturn(11L);
-        PostSearchService service = new PostSearchService(postRepository);
+        PostSearchService service = new PostSearchService(postRepository, eventPublisher);
 
         // when
         PostPageResponse response = service.searchPosts("spring", 2, 10, 7L);
@@ -43,6 +47,7 @@ class PostSearchServiceTest {
         assertThat(response.limit()).isEqualTo(10);
         assertThat(response.total()).isEqualTo(11);
         assertThat(response.posts()).containsExactly(detail);
+        verify(eventPublisher).publishEvent(new com.test.ludence.search.domain.event.PostSearchedEvent(7L, "spring"));
     }
 
     @Test
@@ -52,7 +57,7 @@ class PostSearchServiceTest {
         PageRequest pageRequest = new PageRequest(1, 20);
         given(postRepository.findActiveDetailsByQuery(null, null, pageRequest)).willReturn(List.of());
         given(postRepository.countActiveByQuery(null)).willReturn(0L);
-        PostSearchService service = new PostSearchService(postRepository);
+        PostSearchService service = new PostSearchService(postRepository, eventPublisher);
 
         // when
         service.searchPosts("   ", 1, 20, null);
@@ -66,7 +71,7 @@ class PostSearchServiceTest {
     @DisplayName("검색어가 100자를 초과하면 DomainException이 발생한다")
     void throwsDomainException_whenQueryExceedsMaximumLength() {
         // given
-        PostSearchService service = new PostSearchService(postRepository);
+        PostSearchService service = new PostSearchService(postRepository, eventPublisher);
 
         // when & then
         assertThatThrownBy(() -> service.searchPosts("a".repeat(101), 1, 20, null))
@@ -77,7 +82,7 @@ class PostSearchServiceTest {
     @DisplayName("공백 검색어도 100자를 초과하면 DomainException이 발생한다")
     void throwsDomainException_whenBlankQueryExceedsMaximumLength() {
         // given
-        PostSearchService service = new PostSearchService(postRepository);
+        PostSearchService service = new PostSearchService(postRepository, eventPublisher);
 
         // when & then
         assertThatThrownBy(() -> service.searchPosts(" ".repeat(101), 1, 20, null))

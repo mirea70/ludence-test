@@ -6,9 +6,11 @@ import com.test.ludence.post.dto.response.PostDetailResponse;
 import com.test.ludence.post.dto.response.PostPageResponse;
 import com.test.ludence.post.repository.PostRepository;
 import com.test.ludence.search.domain.info.SearchErrorInfo;
+import com.test.ludence.search.domain.event.PostSearchedEvent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -19,6 +21,7 @@ public class PostSearchService {
     private static final int MAX_QUERY_LENGTH = 100;
 
     private final PostRepository postRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public PostPageResponse searchPosts(String query, int page, int limit, Long currentUserId) {
         PageRequest pageRequest = new PageRequest(page, limit);
@@ -30,6 +33,9 @@ public class PostSearchService {
                 pageRequest
         );
         long total = postRepository.countActiveByQuery(normalizedQuery);
+        if (currentUserId != null && normalizedQuery != null) {
+            eventPublisher.publishEvent(new PostSearchedEvent(currentUserId, normalizedQuery));
+        }
         return new PostPageResponse(page, limit, total, posts);
     }
 

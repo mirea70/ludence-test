@@ -10,6 +10,7 @@ import com.test.ludence.heart.domain.entity.PostHeartCount;
 import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
 import com.test.ludence.post.repository.PostRepository;
+import com.test.ludence.recommendation.service.RecommendationRefreshService;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+import static org.mockito.Mockito.verify;
 
 @DisplayName("HeartCreateService 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -30,6 +32,9 @@ class HeartCreateServiceTest {
 
     @Mock
     private PostHeartCountRepository postHeartCountRepository;
+
+    @Mock
+    private RecommendationRefreshService recommendationRefreshService;
 
     @Test
     @DisplayName("활성 포스트에 하트를 추가하면 집계 행을 잠그고 INSERT 성공 후 집계값을 증가시킨다")
@@ -45,6 +50,7 @@ class HeartCreateServiceTest {
 
         // then
         assertThat(heartCount.getCount()).isEqualTo(1);
+        verify(recommendationRefreshService).requestRefresh(1L);
     }
 
     @Test
@@ -93,6 +99,11 @@ class HeartCreateServiceTest {
     }
 
     private HeartCreateService service() {
-        return new HeartCreateService(postRepository, heartRepository, postHeartCountRepository);
+        return new HeartCreateService(
+                postRepository,
+                heartRepository,
+                postHeartCountRepository,
+                recommendationRefreshService
+        );
     }
 }

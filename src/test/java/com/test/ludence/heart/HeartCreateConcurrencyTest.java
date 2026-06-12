@@ -12,6 +12,8 @@ import com.test.ludence.heart.service.HeartDeleteService;
 import com.test.ludence.post.domain.entity.Post;
 import com.test.ludence.post.repository.PostRepository;
 import com.test.ludence.post.service.PostDeleteService;
+import com.test.ludence.recommendation.domain.entity.RecommendationState;
+import com.test.ludence.recommendation.repository.RecommendationStateRepository;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -52,11 +54,15 @@ class HeartCreateConcurrencyTest {
     @Autowired
     private PostHeartCountRepository postHeartCountRepository;
 
+    @Autowired
+    private RecommendationStateRepository recommendationStateRepository;
+
     @AfterEach
     void cleanUp() {
         heartRepository.deleteAll();
         postHeartCountRepository.deleteAll();
         postRepository.deleteAll();
+        recommendationStateRepository.deleteAll();
     }
 
     @Test
@@ -71,6 +77,7 @@ class HeartCreateConcurrencyTest {
                 Instant.parse("2026-06-10T10:00:00Z")
         ));
         postHeartCountRepository.save(PostHeartCount.create(post.getId()));
+        createRecommendationStates(1L);
         AtomicInteger successCount = new AtomicInteger();
         CountDownLatch ready = new CountDownLatch(REQUEST_COUNT);
         CountDownLatch start = new CountDownLatch(1);
@@ -112,6 +119,7 @@ class HeartCreateConcurrencyTest {
                 Instant.parse("2026-06-10T10:00:00Z")
         ));
         postHeartCountRepository.save(PostHeartCount.create(post.getId()));
+        createRecommendationStates(LongStream.rangeClosed(1, REQUEST_COUNT).toArray());
         CountDownLatch ready = new CountDownLatch(REQUEST_COUNT);
         CountDownLatch start = new CountDownLatch(1);
         ExecutorService executor = Executors.newFixedThreadPool(REQUEST_COUNT);
@@ -149,6 +157,7 @@ class HeartCreateConcurrencyTest {
                 Instant.parse("2026-06-10T10:00:00Z")
         ));
         postHeartCountRepository.save(PostHeartCount.create(post.getId()));
+        createRecommendationStates(2L);
         CountDownLatch ready = new CountDownLatch(2);
         CountDownLatch start = new CountDownLatch(1);
         ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -182,6 +191,7 @@ class HeartCreateConcurrencyTest {
         heartCount.increment();
         postHeartCountRepository.save(heartCount);
         heartRepository.save(Heart.create(2L, post.getId()));
+        createRecommendationStates(2L);
         AtomicInteger successCount = new AtomicInteger();
         CountDownLatch ready = new CountDownLatch(REQUEST_COUNT);
         CountDownLatch start = new CountDownLatch(1);
@@ -219,5 +229,14 @@ class HeartCreateConcurrencyTest {
             Thread.currentThread().interrupt();
         } catch (RuntimeException ignored) {
         }
+    }
+
+    private void createRecommendationStates(long... userIds) {
+        recommendationStateRepository.saveAll(
+                LongStream.of(userIds)
+                        .mapToObj(RecommendationState::create)
+                        .toList()
+        );
+        recommendationStateRepository.flush();
     }
 }

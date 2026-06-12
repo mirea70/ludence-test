@@ -6,6 +6,8 @@ import com.test.ludence.auth.dto.response.TokenResponse;
 import com.test.ludence.auth.security.JwtTokenProvider;
 import com.test.ludence.auth.security.PasswordHasher;
 import com.test.ludence.common.error.exception.BusinessException;
+import com.test.ludence.recommendation.domain.entity.RecommendationState;
+import com.test.ludence.recommendation.repository.RecommendationStateRepository;
 import com.test.ludence.user.domain.entity.User;
 import com.test.ludence.user.repository.UserRepository;
 import java.time.Clock;
@@ -22,6 +24,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordHasher passwordHasher;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RecommendationStateRepository recommendationStateRepository;
     private final Clock clock;
 
     @Transactional
@@ -33,7 +36,9 @@ public class AuthService {
                 passwordHasher.hash(request.password()),
                 clock.instant()
         );
-        return new TokenResponse(jwtTokenProvider.createToken(save(user)));
+        User savedUser = save(user);
+        recommendationStateRepository.save(RecommendationState.create(savedUser.getId()));
+        return new TokenResponse(jwtTokenProvider.createToken(savedUser));
     }
 
     public TokenResponse login(AuthRequest request) {

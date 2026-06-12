@@ -6,13 +6,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.test.ludence.auth.dto.request.AuthRequest;
+import com.test.ludence.recommendation.repository.RecommendationStateRepository;
 import com.test.ludence.support.IntegrationTestSupport;
+import com.test.ludence.user.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
 @DisplayName("인증 API 통합 테스트")
 class AuthIntegrationTest extends IntegrationTestSupport {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RecommendationStateRepository recommendationStateRepository;
 
     @Test
     @DisplayName("회원가입 후 동일한 계정으로 로그인하면 각각 JWT를 반환한다")
@@ -33,6 +42,9 @@ class AuthIntegrationTest extends IntegrationTestSupport {
                         .content(content))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").isNotEmpty());
+
+        Long userId = userRepository.findActiveIdByUsername("sunny").orElseThrow();
+        org.assertj.core.api.Assertions.assertThat(recommendationStateRepository.findById(userId)).isPresent();
     }
 
     @Test

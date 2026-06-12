@@ -10,12 +10,14 @@ import com.test.ludence.heart.domain.entity.PostHeartCount;
 import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
 import com.test.ludence.post.repository.PostRepository;
+import com.test.ludence.recommendation.service.RecommendationRefreshService;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.verify;
 
 @DisplayName("HeartDeleteService 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -29,6 +31,9 @@ class HeartDeleteServiceTest {
 
     @Mock
     private PostHeartCountRepository postHeartCountRepository;
+
+    @Mock
+    private RecommendationRefreshService recommendationRefreshService;
 
     @Test
     @DisplayName("활성 포스트의 하트를 삭제하면 집계 행을 잠그고 집계값을 감소시킨다")
@@ -46,6 +51,7 @@ class HeartDeleteServiceTest {
 
         // then
         assertThat(heartCount.getCount()).isZero();
+        verify(recommendationRefreshService).requestRefresh(1L);
     }
 
     @Test
@@ -94,6 +100,11 @@ class HeartDeleteServiceTest {
     }
 
     private HeartDeleteService service() {
-        return new HeartDeleteService(postRepository, heartRepository, postHeartCountRepository);
+        return new HeartDeleteService(
+                postRepository,
+                heartRepository,
+                postHeartCountRepository,
+                recommendationRefreshService
+        );
     }
 }

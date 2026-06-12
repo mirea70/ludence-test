@@ -4,7 +4,11 @@ import com.test.ludence.common.config.JpaConfig;
 import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
 import com.test.ludence.post.repository.PostRepository;
+import com.test.ludence.post.repository.PostViewCountRepository;
+import com.test.ludence.recommendation.repository.RecommendationStateRepository;
 import com.test.ludence.user.repository.UserRepository;
+import com.test.ludence.user.repository.UserPostViewRepository;
+import com.test.ludence.user.repository.UserSearchKeywordRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -30,4 +34,16 @@ public abstract class JpaTestSupport {
 
     @Autowired
     protected PostHeartCountRepository postHeartCountRepository;
+
+    @Autowired
+    protected PostViewCountRepository postViewCountRepository;
+
+    @Autowired
+    protected UserPostViewRepository userPostViewRepository;
+
+    @Autowired
+    protected UserSearchKeywordRepository userSearchKeywordRepository;
+
+    @Autowired
+    protected RecommendationStateRepository recommendationStateRepository;
 }
