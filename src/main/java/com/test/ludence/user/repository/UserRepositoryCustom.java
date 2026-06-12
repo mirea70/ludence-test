@@ -2,6 +2,7 @@ package com.test.ludence.user.repository;
 
 import com.test.ludence.user.domain.entity.User;
 import com.test.ludence.user.dto.response.UserDetailResponse;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepositoryCustom {
@@ -11,4 +12,6 @@ public interface UserRepositoryCustom {
     Optional<UserDetailResponse> findActiveDetailByUsername(String username);
 
     Optional<Long> findActiveIdByUsername(String username);
+
+    List<UserDetailResponse> findAllActiveDetails();
 }

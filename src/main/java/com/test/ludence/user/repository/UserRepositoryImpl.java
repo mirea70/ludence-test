@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.test.ludence.user.domain.entity.User;
 import com.test.ludence.user.dto.response.UserDetailResponse;
 import jakarta.persistence.LockModeType;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
@@ -60,5 +61,25 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                         user.deletedAt.isNull()
                 )
                 .fetchOne());
+    }
+
+    @Override
+    public List<UserDetailResponse> findAllActiveDetails() {
+        return queryFactory
+                .select(Projections.constructor(
+                        UserDetailResponse.class,
+                        user.username.value,
+                        post.id.count(),
+                        user.createdAt
+                ))
+                .from(user)
+                .leftJoin(post).on(
+                        post.authorId.eq(user.id),
+                        post.deletedAt.isNull()
+                )
+                .where(user.deletedAt.isNull())
+                .groupBy(user.id, user.username.value, user.createdAt)
+                .orderBy(user.createdAt.desc(), user.id.desc())
+                .fetch();
     }
 }

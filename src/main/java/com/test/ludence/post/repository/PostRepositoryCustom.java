@@ -38,4 +38,6 @@ public interface PostRepositoryCustom {
     );
 
     long countActiveByQuery(String query);
+
+    List<PostDetailResponse> findAllActiveDetails();
 }

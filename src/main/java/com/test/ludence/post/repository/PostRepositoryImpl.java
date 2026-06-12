@@ -250,6 +250,31 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return count == null ? 0L : count;
     }
 
+    @Override
+    public List<PostDetailResponse> findAllActiveDetails() {
+        return queryFactory
+                .select(Projections.constructor(
+                        PostDetailResponse.class,
+                        post.id,
+                        post.title.value,
+                        post.description.value,
+                        post.createdAt,
+                        post.editedAt,
+                        user.username.value,
+                        postHeartCount.count,
+                        Expressions.FALSE
+                ))
+                .from(post)
+                .join(postHeartCount).on(postHeartCount.postId.eq(post.id))
+                .leftJoin(user).on(
+                        user.id.eq(post.authorId),
+                        user.deletedAt.isNull()
+                )
+                .where(post.deletedAt.isNull())
+                .orderBy(post.createdAt.desc(), post.id.desc())
+                .fetch();
+    }
+
     private BooleanExpression containsQuery(String query) {
         if (query == null) {
             return null;
