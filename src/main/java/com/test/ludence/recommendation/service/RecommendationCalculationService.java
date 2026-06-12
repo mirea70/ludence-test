@@ -54,7 +54,7 @@ public class RecommendationCalculationService {
 
         userRecommendationRepository.deleteByUserId(userId);
         userRecommendationRepository.saveAll(toUserRecommendations(userId, candidates, calculatedAt));
-        state.completeCalculation(requestedVersion);
+        state.completeCalculation(requestedVersion, calculatedAt);
     }
 
     private void addCandidates(LinkedHashSet<Long> candidates, List<Long> additions) {

@@ -59,6 +59,7 @@ class RecommendationCalculationServiceTest {
         assertThat(captor.getValue()).extracting(UserRecommendation::getRank)
                 .containsExactly(1, 2, 3, 4, 5);
         assertThat(state.getCalculatedVersion()).isEqualTo(state.getRequestedVersion());
+        assertThat(state.getLastCalculatedAt()).isEqualTo(NOW);
     }
 
     private RecommendationCalculationService service() {

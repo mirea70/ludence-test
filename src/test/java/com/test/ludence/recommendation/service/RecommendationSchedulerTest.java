@@ -5,6 +5,9 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import com.test.ludence.recommendation.repository.RecommendationStateRepository;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class RecommendationSchedulerTest {
 
+    private static final Instant NOW = Instant.parse("2026-06-12T10:00:00Z");
+
     @Mock
     private RecommendationCalculationService calculationService;
     @Mock
@@ -26,7 +31,10 @@ class RecommendationSchedulerTest {
     void calculatesCommonAndPendingUserRecommendations() {
         // given
         given(recommendationStateRepository.findPendingUserIds(100)).willReturn(List.of(1L, 2L));
-        RecommendationScheduler scheduler = new RecommendationScheduler(calculationService, recommendationStateRepository);
+        given(recommendationStateRepository.findUserIdsAffectedByHeartedAuthors(100)).willReturn(List.of(2L, 3L));
+        given(recommendationStateRepository.findUserIdsAffectedByViewedAuthors(NOW.minusSeconds(604800), 100))
+                .willReturn(List.of(3L, 4L));
+        RecommendationScheduler scheduler = scheduler();
 
         // when
         scheduler.calculateRecommendations();
@@ -35,6 +43,8 @@ class RecommendationSchedulerTest {
         verify(calculationService).calculateCommonRecommendations();
         verify(calculationService).calculateUserRecommendations(1L);
         verify(calculationService).calculateUserRecommendations(2L);
+        verify(calculationService).calculateUserRecommendations(3L);
+        verify(calculationService).calculateUserRecommendations(4L);
     }
 
     @Test
@@ -43,12 +53,20 @@ class RecommendationSchedulerTest {
         // given
         given(recommendationStateRepository.findPendingUserIds(100)).willReturn(List.of(1L, 2L));
         doThrow(new IllegalStateException()).when(calculationService).calculateUserRecommendations(1L);
-        RecommendationScheduler scheduler = new RecommendationScheduler(calculationService, recommendationStateRepository);
+        RecommendationScheduler scheduler = scheduler();
 
         // when
         scheduler.calculateRecommendations();
 
         // then
         verify(calculationService).calculateUserRecommendations(2L);
+    }
+
+    private RecommendationScheduler scheduler() {
+        return new RecommendationScheduler(
+                calculationService,
+                recommendationStateRepository,
+                Clock.fixed(NOW, ZoneOffset.UTC)
+        );
     }
 }

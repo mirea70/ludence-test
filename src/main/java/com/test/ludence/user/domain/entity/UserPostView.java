@@ -15,7 +15,10 @@ import lombok.Getter;
 @Entity
 @Table(
         name = "user_post_views",
-        indexes = @Index(name = "idx_user_post_views_user_last_viewed", columnList = "user_id, last_viewed_at DESC")
+        indexes = {
+                @Index(name = "idx_user_post_views_user_last_viewed", columnList = "user_id, last_viewed_at DESC"),
+                @Index(name = "idx_user_post_views_last_viewed_post", columnList = "last_viewed_at DESC, post_id, user_id")
+        }
 )
 public class UserPostView {
 
