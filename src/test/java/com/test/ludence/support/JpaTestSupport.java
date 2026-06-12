@@ -8,6 +8,7 @@ import com.test.ludence.post.repository.PostViewCountRepository;
 import com.test.ludence.recommendation.repository.RecommendationStateRepository;
 import com.test.ludence.recommendation.repository.CommonRecommendationRepository;
 import com.test.ludence.recommendation.repository.RecommendationCandidateQueryRepository;
+import com.test.ludence.recommendation.repository.RecommendationQueryRepository;
 import com.test.ludence.recommendation.repository.UserRecommendationRepository;
 import com.test.ludence.user.repository.UserRepository;
 import com.test.ludence.user.repository.UserPostViewRepository;
@@ -20,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({JpaConfig.class, RecommendationCandidateQueryRepository.class})
+@Import({JpaConfig.class, RecommendationCandidateQueryRepository.class, RecommendationQueryRepository.class})
 public abstract class JpaTestSupport {
 
     @Autowired
@@ -58,4 +59,7 @@ public abstract class JpaTestSupport {
 
     @Autowired
     protected RecommendationCandidateQueryRepository recommendationCandidateQueryRepository;
+
+    @Autowired
+    protected RecommendationQueryRepository recommendationQueryRepository;
 }

@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import lombok.Getter;
 
 @Getter
@@ -21,6 +22,8 @@ public class RecommendationState {
 
     @Column(nullable = false)
     private long calculatedVersion;
+
+    private Instant lastCalculatedAt;
 
     protected RecommendationState() {
     }
@@ -40,10 +43,15 @@ public class RecommendationState {
     }
 
     public void completeCalculation(long version) {
-        if (version < 1 || version > requestedVersion || version < calculatedVersion) {
-            throw new DomainException(RecommendationErrorInfo.INVALID_VERSION);
-        }
+        validateVersion(version);
         calculatedVersion = version;
+    }
+
+    public void completeCalculation(long version, Instant calculatedAt) {
+        validateVersion(version);
+        validateCalculationTime(calculatedAt);
+        calculatedVersion = version;
+        lastCalculatedAt = calculatedAt;
     }
 
     public boolean requiresCalculation() {
@@ -53,6 +61,18 @@ public class RecommendationState {
     private static void validateId(Long id) {
         if (id == null || id < 1) {
             throw new DomainException(RecommendationErrorInfo.INVALID_REFERENCE_ID);
+        }
+    }
+
+    private void validateCalculationTime(Instant calculatedAt) {
+        if (calculatedAt == null || lastCalculatedAt != null && calculatedAt.isBefore(lastCalculatedAt)) {
+            throw new DomainException(RecommendationErrorInfo.INVALID_TIME);
+        }
+    }
+
+    private void validateVersion(long version) {
+        if (version < 1 || version > requestedVersion || version < calculatedVersion) {
+            throw new DomainException(RecommendationErrorInfo.INVALID_VERSION);
         }
     }
 }
