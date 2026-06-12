@@ -4,10 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.test.ludence.recommendation.repository.RecommendationStateRepository;
 import com.test.ludence.user.domain.entity.User;
+import com.test.ludence.user.domain.entity.UserPostView;
+import com.test.ludence.user.domain.entity.UserSearchKeyword;
 import com.test.ludence.user.domain.vo.UserPostViewId;
+import com.test.ludence.user.domain.vo.UserSearchKeywordId;
 import com.test.ludence.user.repository.UserPostViewRepository;
 import com.test.ludence.user.repository.UserRepository;
+import com.test.ludence.user.repository.UserSearchKeywordRepository;
 import java.time.Instant;
+import java.util.stream.LongStream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +35,9 @@ class UserActivityServiceIntegrationTest {
     private UserPostViewRepository userPostViewRepository;
 
     @Autowired
+    private UserSearchKeywordRepository userSearchKeywordRepository;
+
+    @Autowired
     private RecommendationStateRepository recommendationStateRepository;
 
     private Long userId;
@@ -39,7 +47,10 @@ class UserActivityServiceIntegrationTest {
         if (userId == null) {
             return;
         }
-        userPostViewRepository.deleteById(new UserPostViewId(userId, 10L));
+        userPostViewRepository.deleteAllByIdInBatch(userPostViewRepository.findIdsExceedingLimitByUserId(userId, 0));
+        userSearchKeywordRepository.deleteAllByIdInBatch(
+                userSearchKeywordRepository.findIdsExceedingLimitByUserId(userId, 0)
+        );
         recommendationStateRepository.deleteById(userId);
         userRepository.deleteById(userId);
     }
@@ -59,5 +70,36 @@ class UserActivityServiceIntegrationTest {
         // then
         assertThat(userPostViewRepository.findById(new UserPostViewId(userId, 10L))).isPresent();
         assertThat(recommendationStateRepository.findById(userId)).isPresent();
+    }
+
+    @Test
+    @DisplayName("행동 이력을 기록하면 사용자별 최대 개수를 초과한 오래된 이력을 삭제한다")
+    void trimsOldActivities_whenRecordingActivity() {
+        // given
+        Instant now = Instant.now();
+        User user = userRepository.saveAndFlush(User.create("history_viewer", "encoded-password", now));
+        userId = user.getId();
+        userPostViewRepository.saveAllAndFlush(LongStream.rangeClosed(1, 100)
+                .mapToObj(postId -> UserPostView.create(userId, postId, now.minusSeconds(200 - postId)))
+                .toList());
+        userSearchKeywordRepository.saveAllAndFlush(LongStream.rangeClosed(1, 20)
+                .mapToObj(index -> UserSearchKeyword.create(
+                        userId,
+                        "keyword_" + index,
+                        now.minusSeconds(200 - index)
+                ))
+                .toList());
+
+        // when
+        userActivityService.recordPostView(101L, userId);
+        userActivityService.recordSearch(userId, "new_keyword");
+
+        // then
+        assertThat(userPostViewRepository.findIdsExceedingLimitByUserId(userId, 0)).hasSize(100);
+        assertThat(userPostViewRepository.findById(new UserPostViewId(userId, 1L))).isEmpty();
+        assertThat(userPostViewRepository.findById(new UserPostViewId(userId, 101L))).isPresent();
+        assertThat(userSearchKeywordRepository.findIdsExceedingLimitByUserId(userId, 0)).hasSize(20);
+        assertThat(userSearchKeywordRepository.findById(new UserSearchKeywordId(userId, "keyword_1"))).isEmpty();
+        assertThat(userSearchKeywordRepository.findById(new UserSearchKeywordId(userId, "new_keyword"))).isPresent();
     }
 }

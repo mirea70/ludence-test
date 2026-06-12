@@ -15,7 +15,16 @@ import lombok.Getter;
 @Entity
 @Table(
         name = "user_search_keywords",
-        indexes = @Index(name = "idx_user_search_keywords_user_last_searched", columnList = "user_id, last_searched_at DESC")
+        indexes = {
+                @Index(
+                        name = "idx_user_search_keywords_user_last_searched",
+                        columnList = "user_id, last_searched_at DESC"
+                ),
+                @Index(
+                        name = "idx_user_search_keywords_last_searched_user",
+                        columnList = "last_searched_at DESC, user_id"
+                )
+        }
 )
 public class UserSearchKeyword {
 

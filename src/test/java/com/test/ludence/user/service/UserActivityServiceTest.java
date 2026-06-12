@@ -6,6 +6,8 @@ import static org.mockito.Mockito.verify;
 import com.test.ludence.recommendation.service.RecommendationRefreshService;
 import com.test.ludence.user.domain.entity.UserPostView;
 import com.test.ludence.user.domain.entity.UserSearchKeyword;
+import com.test.ludence.user.domain.vo.UserPostViewId;
+import com.test.ludence.user.domain.vo.UserSearchKeywordId;
 import com.test.ludence.user.repository.UserPostViewRepository;
 import com.test.ludence.user.repository.UserSearchKeywordRepository;
 import com.test.ludence.user.repository.UserRepository;
@@ -14,6 +16,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Optional;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +48,8 @@ class UserActivityServiceTest {
         // given
         given(userRepository.findByIdAndDeletedAtIsNull(1L)).willReturn(Optional.of(user()));
         given(userPostViewRepository.findByUserIdAndPostIdForUpdate(1L, 10L)).willReturn(Optional.empty());
+        UserPostViewId excessId = new UserPostViewId(1L, 9L);
+        given(userPostViewRepository.findIdsExceedingLimitByUserId(1L, 100)).willReturn(List.of(excessId));
         UserActivityService service = service();
 
         // when
@@ -52,6 +57,7 @@ class UserActivityServiceTest {
 
         // then
         verify(userPostViewRepository).save(org.mockito.ArgumentMatchers.any(UserPostView.class));
+        verify(userPostViewRepository).deleteAllByIdInBatch(List.of(excessId));
         verify(recommendationRefreshService).requestRefresh(1L);
     }
 
@@ -62,6 +68,8 @@ class UserActivityServiceTest {
         given(userSearchKeywordRepository.findByUserIdAndKeywordForUpdate(1L, "spring"))
                 .willReturn(Optional.empty());
         given(userRepository.findByIdAndDeletedAtIsNull(1L)).willReturn(Optional.of(user()));
+        UserSearchKeywordId excessId = new UserSearchKeywordId(1L, "old");
+        given(userSearchKeywordRepository.findIdsExceedingLimitByUserId(1L, 20)).willReturn(List.of(excessId));
         UserActivityService service = service();
 
         // when
@@ -69,6 +77,7 @@ class UserActivityServiceTest {
 
         // then
         verify(userSearchKeywordRepository).save(org.mockito.ArgumentMatchers.any(UserSearchKeyword.class));
+        verify(userSearchKeywordRepository).deleteAllByIdInBatch(List.of(excessId));
         verify(recommendationRefreshService).requestRefresh(1L);
     }
 
