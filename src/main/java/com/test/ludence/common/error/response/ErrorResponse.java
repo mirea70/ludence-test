@@ -1,21 +1,22 @@
 package com.test.ludence.common.error.response;
 
-import java.time.LocalDateTime;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Map;
 
 public record ErrorResponse(
-        LocalDateTime timestamp,
+        Instant timestamp,
         String code,
         String message,
         String path,
         Map<String, Object> details
 ) {
 
-    public ErrorResponse(String code, String message, String path) {
-        this(LocalDateTime.now(), code, message, path, Map.of());
+    public ErrorResponse(Clock clock, String code, String message, String path) {
+        this(clock.instant(), code, message, path, Map.of());
     }
 
-    public ErrorResponse(String code, String message, String path, Map<String, Object> details) {
-        this(LocalDateTime.now(), code, message, path, Map.copyOf(details));
+    public ErrorResponse(Clock clock, String code, String message, String path, Map<String, Object> details) {
+        this(clock.instant(), code, message, path, Map.copyOf(details));
     }
 }

@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Clock;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ public class LoadSheddingFilter extends OncePerRequestFilter {
 
     private final ServerCapacityMonitor capacityMonitor;
     private final ObjectMapper objectMapper;
+    private final Clock clock;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -41,6 +43,7 @@ public class LoadSheddingFilter extends OncePerRequestFilter {
 
         SystemErrorInfo errorInfo = SystemErrorInfo.CAPACITY_EXCEEDED;
         ErrorResponse errorResponse = new ErrorResponse(
+                clock,
                 errorInfo.getCode(),
                 errorInfo.getMessage(),
                 request.getRequestURI()

@@ -6,7 +6,9 @@ import static org.mockito.BDDMockito.given;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.test.ludence.user.domain.entity.User;
 import com.test.ludence.user.repository.UserRepository;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,7 +46,10 @@ class JwtAuthenticationFilterTest {
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(
                 jwtTokenProvider,
                 userRepository,
-                new RestAuthenticationEntryPoint(new ObjectMapper())
+                new RestAuthenticationEntryPoint(
+                        new ObjectMapper(),
+                        Clock.fixed(Instant.parse("2026-06-13T10:00:00Z"), ZoneOffset.UTC)
+                )
         );
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Bearer jwt-token");

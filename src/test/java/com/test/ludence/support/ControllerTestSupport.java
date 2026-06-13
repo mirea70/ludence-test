@@ -5,6 +5,7 @@ import com.test.ludence.auth.security.JwtAuthenticationFilter;
 import com.test.ludence.auth.security.RestAuthenticationEntryPoint;
 import com.test.ludence.auth.service.AuthService;
 import com.test.ludence.auth.service.AuthWithdrawalService;
+import com.test.ludence.common.config.TimeConfig;
 import com.test.ludence.common.load.LoadSheddingFilter;
 import com.test.ludence.debug.service.DebugService;
 import com.test.ludence.heart.service.HeartCreateService;
@@ -23,6 +24,7 @@ import com.test.ludence.user.service.UserPostQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,6 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
+@Import(TimeConfig.class)
 public abstract class ControllerTestSupport {
 
     @Autowired

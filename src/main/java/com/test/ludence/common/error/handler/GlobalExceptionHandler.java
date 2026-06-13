@@ -7,8 +7,10 @@ import com.test.ludence.common.error.info.ErrorInfo;
 import com.test.ludence.common.error.info.SystemErrorInfo;
 import com.test.ludence.common.error.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.Clock;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +24,10 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final Clock clock;
 
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> handleDomainException(
@@ -51,6 +56,7 @@ public class GlobalExceptionHandler {
 
         ErrorInfo errorInfo = CommonErrorInfo.INVALID_REQUEST;
         ErrorResponse response = new ErrorResponse(
+                clock,
                 errorInfo.getCode(),
                 errorInfo.getMessage(),
                 request.getRequestURI(),
@@ -102,6 +108,7 @@ public class GlobalExceptionHandler {
 
     private ErrorResponse createErrorResponse(ErrorInfo errorInfo, HttpServletRequest request) {
         return new ErrorResponse(
+                clock,
                 errorInfo.getCode(),
                 errorInfo.getMessage(),
                 request.getRequestURI()

@@ -4,6 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,13 +19,15 @@ import org.springframework.mock.web.MockHttpServletResponse;
 @DisplayName("LoadSheddingFilter 테스트")
 class LoadSheddingFilterTest {
 
+    private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-06-13T10:00:00Z"), ZoneOffset.UTC);
+
     @Test
     @DisplayName("서버가 포화 상태면 표준 에러 형식의 429를 반환한다")
     void returnsTooManyRequests_whenServerIsSaturated() throws Exception {
         // given
         ServerCapacityMonitor capacityMonitor = Mockito.mock(ServerCapacityMonitor.class);
         given(capacityMonitor.isSaturated()).willReturn(true);
-        LoadSheddingFilter filter = new LoadSheddingFilter(capacityMonitor, objectMapper());
+        LoadSheddingFilter filter = new LoadSheddingFilter(capacityMonitor, objectMapper(), CLOCK);
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/posts/1");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
@@ -34,6 +40,7 @@ class LoadSheddingFilterTest {
         assertThat(response.getHeader("Retry-After")).isEqualTo("1");
         assertThat(response.getContentAsString()).contains("\"code\":\"SYSTEM_002\"");
         assertThat(response.getContentAsString()).contains("\"path\":\"/posts/1\"");
+        assertThat(response.getContentAsString()).contains("\"timestamp\":\"2026-06-13T10:00:00Z\"");
         assertThat(chain.getRequest()).isNull();
     }
 
@@ -42,7 +49,7 @@ class LoadSheddingFilterTest {
     void continuesFilterChain_whenServerIsAvailable() throws Exception {
         // given
         ServerCapacityMonitor capacityMonitor = Mockito.mock(ServerCapacityMonitor.class);
-        LoadSheddingFilter filter = new LoadSheddingFilter(capacityMonitor, objectMapper());
+        LoadSheddingFilter filter = new LoadSheddingFilter(capacityMonitor, objectMapper(), CLOCK);
         MockFilterChain chain = new MockFilterChain();
 
         // when
@@ -58,7 +65,7 @@ class LoadSheddingFilterTest {
         // given
         ServerCapacityMonitor capacityMonitor = Mockito.mock(ServerCapacityMonitor.class);
         given(capacityMonitor.isSaturated()).willReturn(true);
-        LoadSheddingFilter filter = new LoadSheddingFilter(capacityMonitor, objectMapper());
+        LoadSheddingFilter filter = new LoadSheddingFilter(capacityMonitor, objectMapper(), CLOCK);
         MockFilterChain chain = new MockFilterChain();
 
         // when
@@ -69,6 +76,8 @@ class LoadSheddingFilterTest {
     }
 
     private ObjectMapper objectMapper() {
-        return new ObjectMapper().findAndRegisterModules();
+        return new ObjectMapper()
+                .findAndRegisterModules()
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 }
