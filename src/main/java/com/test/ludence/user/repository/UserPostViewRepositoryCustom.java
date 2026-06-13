@@ -12,5 +12,5 @@ public interface UserPostViewRepositoryCustom {
 
     Optional<UserPostView> findByUserIdAndPostIdForUpdate(Long userId, Long postId);
 
-    List<UserPostViewId> findIdsLastViewedBefore(Instant expiredAt, int limit);
+    List<UserPostViewId> findIdsLastViewedBefore(Instant expiredAt);
 }

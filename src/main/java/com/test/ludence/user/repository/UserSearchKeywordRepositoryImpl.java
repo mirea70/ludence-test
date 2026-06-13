@@ -63,7 +63,7 @@ public class UserSearchKeywordRepositoryImpl implements UserSearchKeywordReposit
     }
 
     @Override
-    public List<UserSearchKeywordId> findIdsLastSearchedBefore(Instant expiredAt, int limit) {
+    public List<UserSearchKeywordId> findIdsLastSearchedBefore(Instant expiredAt) {
         return queryFactory
                 .select(Projections.constructor(
                         UserSearchKeywordId.class,
@@ -77,7 +77,6 @@ public class UserSearchKeywordRepositoryImpl implements UserSearchKeywordReposit
                         userSearchKeyword.id.userId.asc(),
                         userSearchKeyword.id.keyword.asc()
                 )
-                .limit(limit)
                 .fetch();
     }
 }

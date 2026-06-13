@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserActivityCleanupService {
 
     private static final int RETENTION_DAYS = 7;
-    private static final int DELETE_BATCH_SIZE = 500;
 
     private final UserPostViewRepository userPostViewRepository;
     private final UserSearchKeywordRepository userSearchKeywordRepository;
@@ -31,18 +30,12 @@ public class UserActivityCleanupService {
     }
 
     private void deletePostViews(Instant expiredAt) {
-        List<UserPostViewId> expiredIds = userPostViewRepository.findIdsLastViewedBefore(
-                expiredAt,
-                DELETE_BATCH_SIZE
-        );
+        List<UserPostViewId> expiredIds = userPostViewRepository.findIdsLastViewedBefore(expiredAt);
         userPostViewRepository.deleteAllByIdInBatch(expiredIds);
     }
 
     private void deleteSearchKeywords(Instant expiredAt) {
-        List<UserSearchKeywordId> expiredIds = userSearchKeywordRepository.findIdsLastSearchedBefore(
-                expiredAt,
-                DELETE_BATCH_SIZE
-        );
+        List<UserSearchKeywordId> expiredIds = userSearchKeywordRepository.findIdsLastSearchedBefore(expiredAt);
         userSearchKeywordRepository.deleteAllByIdInBatch(expiredIds);
     }
 }

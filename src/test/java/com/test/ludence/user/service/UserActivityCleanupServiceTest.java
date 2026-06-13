@@ -35,8 +35,8 @@ class UserActivityCleanupServiceTest {
         // given
         UserPostViewId expiredView = new UserPostViewId(1L, 1L);
         UserSearchKeywordId expiredKeyword = new UserSearchKeywordId(1L, "expired");
-        given(userPostViewRepository.findIdsLastViewedBefore(EXPIRED_AT, 500)).willReturn(List.of(expiredView));
-        given(userSearchKeywordRepository.findIdsLastSearchedBefore(EXPIRED_AT, 500))
+        given(userPostViewRepository.findIdsLastViewedBefore(EXPIRED_AT)).willReturn(List.of(expiredView));
+        given(userSearchKeywordRepository.findIdsLastSearchedBefore(EXPIRED_AT))
                 .willReturn(List.of(expiredKeyword));
 
         // when

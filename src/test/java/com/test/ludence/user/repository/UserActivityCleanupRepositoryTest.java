@@ -19,7 +19,7 @@ class UserActivityCleanupRepositoryTest extends JpaTestSupport {
     private static final Instant EXPIRED_AT = NOW.minusSeconds(604800);
 
     @Test
-    @DisplayName("7일이 지난 조회와 검색 이력 ID를 오래된 순서로 제한 조회한다")
+    @DisplayName("7일이 지난 조회와 검색 이력 ID를 오래된 순서로 조회한다")
     void findsExpiredActivityIdsInOldestOrder() {
         // given
         userPostViewRepository.saveAll(List.of(
@@ -36,11 +36,17 @@ class UserActivityCleanupRepositoryTest extends JpaTestSupport {
         entityManager.clear();
 
         // when
-        List<UserPostViewId> viewIds = userPostViewRepository.findIdsLastViewedBefore(EXPIRED_AT, 1);
-        List<UserSearchKeywordId> keywordIds = userSearchKeywordRepository.findIdsLastSearchedBefore(EXPIRED_AT, 1);
+        List<UserPostViewId> viewIds = userPostViewRepository.findIdsLastViewedBefore(EXPIRED_AT);
+        List<UserSearchKeywordId> keywordIds = userSearchKeywordRepository.findIdsLastSearchedBefore(EXPIRED_AT);
 
         // then
-        assertThat(viewIds).containsExactly(new UserPostViewId(1L, 1L));
-        assertThat(keywordIds).containsExactly(new UserSearchKeywordId(1L, "oldest"));
+        assertThat(viewIds).containsExactly(
+                new UserPostViewId(1L, 1L),
+                new UserPostViewId(1L, 2L)
+        );
+        assertThat(keywordIds).containsExactly(
+                new UserSearchKeywordId(1L, "oldest"),
+                new UserSearchKeywordId(1L, "old")
+        );
     }
 }

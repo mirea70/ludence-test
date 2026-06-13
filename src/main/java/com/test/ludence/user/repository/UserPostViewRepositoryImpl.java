@@ -64,7 +64,7 @@ public class UserPostViewRepositoryImpl implements UserPostViewRepositoryCustom 
     }
 
     @Override
-    public List<UserPostViewId> findIdsLastViewedBefore(Instant expiredAt, int limit) {
+    public List<UserPostViewId> findIdsLastViewedBefore(Instant expiredAt) {
         return queryFactory
                 .select(Projections.constructor(
                         UserPostViewId.class,
@@ -74,7 +74,6 @@ public class UserPostViewRepositoryImpl implements UserPostViewRepositoryCustom 
                 .from(userPostView)
                 .where(userPostView.lastViewedAt.lt(expiredAt))
                 .orderBy(userPostView.lastViewedAt.asc(), userPostView.id.userId.asc(), userPostView.id.postId.asc())
-                .limit(limit)
                 .fetch();
     }
 }
