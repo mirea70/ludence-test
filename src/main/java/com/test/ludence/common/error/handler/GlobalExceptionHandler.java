@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.task.TaskRejectedException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -73,6 +75,18 @@ public class GlobalExceptionHandler {
         return createResponse(CommonErrorInfo.INVALID_REQUEST, request);
     }
 
+    @ExceptionHandler(TaskRejectedException.class)
+    public ResponseEntity<ErrorResponse> handleTaskRejectedException(
+            TaskRejectedException exception,
+            HttpServletRequest request
+    ) {
+        ErrorInfo errorInfo = SystemErrorInfo.CAPACITY_EXCEEDED;
+        ErrorResponse response = createErrorResponse(errorInfo, request);
+        return ResponseEntity.status(errorInfo.getStatus())
+                .header(HttpHeaders.RETRY_AFTER, "1")
+                .body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(
             Exception exception,
@@ -83,12 +97,15 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ErrorResponse> createResponse(ErrorInfo errorInfo, HttpServletRequest request) {
-        ErrorResponse response = new ErrorResponse(
+        return ResponseEntity.status(errorInfo.getStatus()).body(createErrorResponse(errorInfo, request));
+    }
+
+    private ErrorResponse createErrorResponse(ErrorInfo errorInfo, HttpServletRequest request) {
+        return new ErrorResponse(
                 errorInfo.getCode(),
                 errorInfo.getMessage(),
                 request.getRequestURI()
         );
-        return ResponseEntity.status(errorInfo.getStatus()).body(response);
     }
 
     private String getValidationMessage(String message) {

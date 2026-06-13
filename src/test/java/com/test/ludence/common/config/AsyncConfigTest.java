@@ -3,6 +3,7 @@ package com.test.ludence.common.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -30,6 +31,8 @@ class AsyncConfigTest {
         assertThat(executor.getMaxPoolSize()).isEqualTo(4);
         assertThat(executor.getQueueCapacity()).isEqualTo(500);
         assertThat(executor.getThreadNamePrefix()).isEqualTo(threadNamePrefix);
+        assertThat(executor.getThreadPoolExecutor().getRejectedExecutionHandler())
+                .isInstanceOf(ThreadPoolExecutor.AbortPolicy.class);
         executor.shutdown();
     }
 }

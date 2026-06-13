@@ -1,3 +1,11 @@
+server:
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 20
+    accept-count: 20
+    max-connections: 10000
+
 spring:
   application:
     name: ludence
@@ -5,6 +13,9 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/ludence}
     username: ${DB_USERNAME:ludence}
     password: ${DB_PASSWORD:ludence}
+    hikari:
+      maximum-pool-size: 20
+      connection-timeout: 2000
   jpa:
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:update}

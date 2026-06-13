@@ -5,6 +5,7 @@ import com.test.ludence.auth.security.JwtAuthenticationFilter;
 import com.test.ludence.auth.security.RestAuthenticationEntryPoint;
 import com.test.ludence.auth.service.AuthService;
 import com.test.ludence.auth.service.AuthWithdrawalService;
+import com.test.ludence.common.load.LoadSheddingFilter;
 import com.test.ludence.debug.service.DebugService;
 import com.test.ludence.heart.service.HeartCreateService;
 import com.test.ludence.heart.service.HeartDeleteService;
@@ -54,6 +55,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockitoBean
+    protected LoadSheddingFilter loadSheddingFilter;
 
     @MockitoBean
     protected RestAuthenticationEntryPoint restAuthenticationEntryPoint;
