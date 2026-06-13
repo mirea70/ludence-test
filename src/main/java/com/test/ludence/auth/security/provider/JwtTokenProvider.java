@@ -1,4 +1,4 @@
-package com.test.ludence.auth.security;
+package com.test.ludence.auth.security.provider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

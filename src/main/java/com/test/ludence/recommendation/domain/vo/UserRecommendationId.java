@@ -1,4 +1,4 @@
-package com.test.ludence.recommendation.domain.entity;
+package com.test.ludence.recommendation.domain.vo;
 
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;

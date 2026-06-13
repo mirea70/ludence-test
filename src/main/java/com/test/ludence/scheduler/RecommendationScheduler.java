@@ -1,4 +1,4 @@
-package com.test.ludence.recommendation.service;
+package com.test.ludence.scheduler;
 
 import com.test.ludence.recommendation.repository.RecommendationStateRepository;
 import java.time.Clock;
@@ -6,6 +6,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashSet;
 import java.util.List;
+
+import com.test.ludence.recommendation.service.RecommendationCalculationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

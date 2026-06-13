@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.test.ludence.auth.dto.request.AuthRequest;
 import com.test.ludence.auth.dto.response.TokenResponse;
-import com.test.ludence.auth.security.AuthenticatedUser;
+import com.test.ludence.auth.security.dto.AuthenticatedUser;
 import com.test.ludence.support.ControllerTestSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;

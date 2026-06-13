@@ -1,4 +1,4 @@
-package com.test.ludence.common.config;
+package com.test.ludence.common.initializer;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;

@@ -1,4 +1,4 @@
-package com.test.ludence.auth.security;
+package com.test.ludence.auth.security.hasher;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;

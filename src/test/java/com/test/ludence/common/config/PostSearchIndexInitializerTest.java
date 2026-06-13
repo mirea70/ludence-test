@@ -3,6 +3,7 @@ package com.test.ludence.common.config;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 
+import com.test.ludence.common.initializer.PostSearchIndexInitializer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;

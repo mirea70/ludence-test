@@ -2,6 +2,7 @@ package com.test.ludence.heart.domain.entity;
 
 import com.test.ludence.common.error.exception.DomainException;
 import com.test.ludence.common.error.info.HeartErrorInfo;
+import com.test.ludence.heart.domain.vo.HeartId;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;

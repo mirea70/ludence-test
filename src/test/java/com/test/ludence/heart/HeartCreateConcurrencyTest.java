@@ -3,7 +3,7 @@ package com.test.ludence.heart;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.test.ludence.heart.domain.entity.Heart;
-import com.test.ludence.heart.domain.entity.HeartId;
+import com.test.ludence.heart.domain.vo.HeartId;
 import com.test.ludence.heart.domain.entity.PostHeartCount;
 import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.heart.repository.PostHeartCountRepository;

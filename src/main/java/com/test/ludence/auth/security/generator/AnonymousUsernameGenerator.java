@@ -1,4 +1,4 @@
-package com.test.ludence.auth.security;
+package com.test.ludence.auth.security.generator;
 
 import java.util.UUID;
 import org.springframework.stereotype.Component;

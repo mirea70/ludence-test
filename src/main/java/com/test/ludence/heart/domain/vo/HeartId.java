@@ -1,4 +1,4 @@
-package com.test.ludence.heart.domain.entity;
+package com.test.ludence.heart.domain.vo;
 
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
-import com.test.ludence.auth.security.AnonymousUsernameGenerator;
+import com.test.ludence.auth.security.generator.AnonymousUsernameGenerator;
 import com.test.ludence.heart.repository.HeartCountByPostId;
 import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.heart.repository.PostHeartCountRepository;

@@ -1,6 +1,6 @@
 package com.test.ludence.search.controller;
 
-import com.test.ludence.auth.security.AuthenticatedUser;
+import com.test.ludence.auth.security.dto.AuthenticatedUser;
 import com.test.ludence.common.page.PageRequest;
 import com.test.ludence.post.dto.response.PostPageResponse;
 import com.test.ludence.search.service.PostSearchService;

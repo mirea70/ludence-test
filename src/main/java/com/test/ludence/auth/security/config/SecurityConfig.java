@@ -1,7 +1,7 @@
-package com.test.ludence.common.config;
+package com.test.ludence.auth.security.config;
 
-import com.test.ludence.auth.security.JwtAuthenticationFilter;
-import com.test.ludence.auth.security.RestAuthenticationEntryPoint;
+import com.test.ludence.auth.security.filter.JwtAuthenticationFilter;
+import com.test.ludence.auth.security.error.RestAuthenticationEntryPoint;
 import com.test.ludence.common.load.LoadSheddingFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

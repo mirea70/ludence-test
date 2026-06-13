@@ -1,8 +1,8 @@
 package com.test.ludence.support;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.test.ludence.auth.security.JwtAuthenticationFilter;
-import com.test.ludence.auth.security.RestAuthenticationEntryPoint;
+import com.test.ludence.auth.security.filter.JwtAuthenticationFilter;
+import com.test.ludence.auth.security.error.RestAuthenticationEntryPoint;
 import com.test.ludence.auth.service.AuthService;
 import com.test.ludence.auth.service.AuthWithdrawalService;
 import com.test.ludence.common.config.TimeConfig;

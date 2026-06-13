@@ -4,6 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.test.ludence.auth.security.dto.AuthenticatedUser;
+import com.test.ludence.auth.security.error.RestAuthenticationEntryPoint;
+import com.test.ludence.auth.security.filter.JwtAuthenticationFilter;
+import com.test.ludence.auth.security.provider.JwtTokenProvider;
 import com.test.ludence.user.domain.entity.User;
 import com.test.ludence.user.repository.UserRepository;
 import java.time.Clock;

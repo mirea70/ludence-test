@@ -2,7 +2,7 @@ package com.test.ludence.auth.controller;
 
 import com.test.ludence.auth.dto.request.AuthRequest;
 import com.test.ludence.auth.dto.response.TokenResponse;
-import com.test.ludence.auth.security.AuthenticatedUser;
+import com.test.ludence.auth.security.dto.AuthenticatedUser;
 import com.test.ludence.auth.service.AuthService;
 import com.test.ludence.auth.service.AuthWithdrawalService;
 import jakarta.validation.Valid;

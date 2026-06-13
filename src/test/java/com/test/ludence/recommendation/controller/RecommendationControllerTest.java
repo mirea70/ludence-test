@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.test.ludence.auth.security.AuthenticatedUser;
+import com.test.ludence.auth.security.dto.AuthenticatedUser;
 import com.test.ludence.recommendation.dto.response.RecommendationResponse;
 import com.test.ludence.support.ControllerTestSupport;
 import java.util.List;

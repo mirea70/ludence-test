@@ -1,4 +1,4 @@
-package com.test.ludence.auth.security;
+package com.test.ludence.auth.security.hasher;
 
 public interface PasswordHasher {
 

@@ -7,8 +7,8 @@ import static org.mockito.Mockito.verify;
 
 import com.test.ludence.auth.dto.request.AuthRequest;
 import com.test.ludence.auth.dto.response.TokenResponse;
-import com.test.ludence.auth.security.JwtTokenProvider;
-import com.test.ludence.auth.security.PasswordHasher;
+import com.test.ludence.auth.security.provider.JwtTokenProvider;
+import com.test.ludence.auth.security.hasher.PasswordHasher;
 import com.test.ludence.common.error.exception.BusinessException;
 import com.test.ludence.recommendation.domain.entity.RecommendationState;
 import com.test.ludence.recommendation.repository.RecommendationStateRepository;
@@ -22,7 +22,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;

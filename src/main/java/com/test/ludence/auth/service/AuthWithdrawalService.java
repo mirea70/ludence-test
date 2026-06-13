@@ -1,7 +1,7 @@
 package com.test.ludence.auth.service;
 
 import com.test.ludence.common.error.info.AuthErrorInfo;
-import com.test.ludence.auth.security.AnonymousUsernameGenerator;
+import com.test.ludence.auth.security.generator.AnonymousUsernameGenerator;
 import com.test.ludence.common.error.exception.BusinessException;
 import com.test.ludence.common.error.info.HeartErrorInfo;
 import com.test.ludence.heart.repository.HeartCountByPostId;

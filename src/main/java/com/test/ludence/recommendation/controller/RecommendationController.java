@@ -1,6 +1,6 @@
 package com.test.ludence.recommendation.controller;
 
-import com.test.ludence.auth.security.AuthenticatedUser;
+import com.test.ludence.auth.security.dto.AuthenticatedUser;
 import com.test.ludence.common.page.PageRequest;
 import com.test.ludence.recommendation.dto.response.RecommendationResponse;
 import com.test.ludence.recommendation.service.RecommendationQueryService;

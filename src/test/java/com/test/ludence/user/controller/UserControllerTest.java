@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.test.ludence.auth.security.dto.AuthenticatedUser;
 import com.test.ludence.support.ControllerTestSupport;
 import com.test.ludence.user.dto.response.UserDetailResponse;
 import com.test.ludence.user.dto.response.UserResponse;
@@ -51,7 +52,7 @@ class UserControllerTest extends ControllerTestSupport {
         given(userPostQueryService.getUserPosts("sunny", 2, 10, 7L))
                 .willReturn(new PostPageResponse(2, 10, 11L, List.of(post)));
         SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(new com.test.ludence.auth.security.AuthenticatedUser(7L), null)
+                new UsernamePasswordAuthenticationToken(new AuthenticatedUser(7L), null)
         );
 
         // when & then
@@ -89,7 +90,7 @@ class UserControllerTest extends ControllerTestSupport {
         given(userHeartQueryService.getUserHearts(7L, "sunny", 2, 10))
                 .willReturn(new PostPageResponse(2, 10, 11L, List.of(post)));
         SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(new com.test.ludence.auth.security.AuthenticatedUser(7L), null)
+                new UsernamePasswordAuthenticationToken(new AuthenticatedUser(7L), null)
         );
 
         // when & then

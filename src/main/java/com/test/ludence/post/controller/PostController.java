@@ -1,6 +1,6 @@
 package com.test.ludence.post.controller;
 
-import com.test.ludence.auth.security.AuthenticatedUser;
+import com.test.ludence.auth.security.dto.AuthenticatedUser;
 import com.test.ludence.common.page.PageRequest;
 import com.test.ludence.heart.dto.response.HeartUserPageResponse;
 import com.test.ludence.heart.service.HeartCreateService;

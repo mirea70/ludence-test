@@ -1,5 +1,6 @@
-package com.test.ludence.user.service;
+package com.test.ludence.scheduler;
 
+import com.test.ludence.user.service.UserActivityCleanupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

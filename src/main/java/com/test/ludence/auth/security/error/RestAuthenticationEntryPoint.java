@@ -1,4 +1,4 @@
-package com.test.ludence.auth.security;
+package com.test.ludence.auth.security.error;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.test.ludence.common.error.info.AuthErrorInfo;
