@@ -1,8 +1,6 @@
 package com.test.ludence.user.service;
 
 import com.test.ludence.recommendation.service.RecommendationRefreshService;
-import com.test.ludence.user.domain.entity.UserPostView;
-import com.test.ludence.user.domain.entity.UserSearchKeyword;
 import com.test.ludence.user.domain.vo.UserPostViewId;
 import com.test.ludence.user.domain.vo.UserSearchKeywordId;
 import com.test.ludence.user.repository.UserPostViewRepository;
@@ -36,11 +34,7 @@ public class UserActivityService {
             return;
         }
         Instant viewedAt = clock.instant();
-        userPostViewRepository.findByUserIdAndPostIdForUpdate(userId, postId)
-                .ifPresentOrElse(
-                        view -> view.recordView(viewedAt),
-                        () -> userPostViewRepository.save(UserPostView.create(userId, postId, viewedAt))
-                );
+        userPostViewRepository.upsert(userId, postId, viewedAt);
         List<UserPostViewId> overIds = userPostViewRepository.findIdsExceedingLimitByUserId(userId, POST_VIEW_LIMIT_PER_USER);
 
         userPostViewRepository.deleteAllByIdInBatch(overIds);
@@ -53,11 +47,7 @@ public class UserActivityService {
             return;
         }
         Instant searchedAt = clock.instant();
-        userSearchKeywordRepository.findByUserIdAndKeywordForUpdate(userId, query)
-                .ifPresentOrElse(
-                        keyword -> keyword.recordSearch(searchedAt),
-                        () -> userSearchKeywordRepository.save(UserSearchKeyword.create(userId, query, searchedAt))
-                );
+        userSearchKeywordRepository.upsert(userId, query, searchedAt);
         List<UserSearchKeywordId> overIds = userSearchKeywordRepository.findIdsExceedingLimitByUserId(userId, SEARCH_KEYWORD_LIMIT_PER_USER);
 
         userSearchKeywordRepository.deleteAllByIdInBatch(overIds);

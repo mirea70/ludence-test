@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface UserPostViewRepositoryCustom {
 
+    void upsert(Long userId, Long postId, Instant viewedAt);
+
     Optional<UserPostView> findByUserIdAndPostIdForUpdate(Long userId, Long postId);
 
     List<UserPostViewId> findIdsLastViewedBefore(Instant expiredAt, int limit);

@@ -1,6 +1,7 @@
 package com.test.ludence.support;
 
 import com.test.ludence.common.config.JpaConfig;
+import com.test.ludence.common.config.DatabaseProduct;
 import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
 import com.test.ludence.post.repository.PostRepository;
@@ -21,7 +22,12 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({JpaConfig.class, RecommendationCandidateQueryRepository.class, RecommendationQueryRepository.class})
+@Import({
+        JpaConfig.class,
+        DatabaseProduct.class,
+        RecommendationCandidateQueryRepository.class,
+        RecommendationQueryRepository.class
+})
 public abstract class JpaTestSupport {
 
     @Autowired
