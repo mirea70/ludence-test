@@ -1,7 +1,7 @@
 package com.test.ludence.user.domain.entity;
 
 import com.test.ludence.common.error.exception.DomainException;
-import com.test.ludence.recommendation.domain.info.RecommendationErrorInfo;
+import com.test.ludence.common.error.info.RecommendationErrorInfo;
 import com.test.ludence.user.domain.vo.UserPostViewId;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;

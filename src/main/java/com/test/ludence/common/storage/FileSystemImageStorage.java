@@ -1,7 +1,7 @@
 package com.test.ludence.common.storage;
 
 import com.test.ludence.common.error.exception.BusinessException;
-import com.test.ludence.post.domain.info.PostErrorInfo;
+import com.test.ludence.common.error.info.PostErrorInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

@@ -2,7 +2,7 @@ package com.test.ludence.post.service;
 
 import com.test.ludence.common.error.exception.BusinessException;
 import com.test.ludence.common.storage.ImageStorage;
-import com.test.ludence.post.domain.info.PostErrorInfo;
+import com.test.ludence.common.error.info.PostErrorInfo;
 import com.test.ludence.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;

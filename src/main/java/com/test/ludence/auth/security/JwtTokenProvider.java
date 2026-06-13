@@ -2,7 +2,7 @@ package com.test.ludence.auth.security;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.test.ludence.auth.domain.info.AuthErrorInfo;
+import com.test.ludence.common.error.info.AuthErrorInfo;
 import com.test.ludence.common.error.exception.BusinessException;
 import com.test.ludence.user.domain.entity.User;
 import java.nio.charset.StandardCharsets;

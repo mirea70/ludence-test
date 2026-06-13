@@ -10,7 +10,7 @@ import com.test.ludence.post.domain.entity.PostViewCount;
 import com.test.ludence.post.dto.response.PostIdResponse;
 import com.test.ludence.post.repository.PostRepository;
 import com.test.ludence.post.repository.PostViewCountRepository;
-import com.test.ludence.user.domain.info.UserErrorInfo;
+import com.test.ludence.common.error.info.UserErrorInfo;
 import com.test.ludence.user.repository.UserRepository;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;

@@ -4,7 +4,7 @@ import com.test.ludence.common.error.exception.BusinessException;
 import com.test.ludence.common.page.PageRequest;
 import com.test.ludence.heart.dto.response.HeartUserPageResponse;
 import com.test.ludence.heart.repository.HeartRepository;
-import com.test.ludence.post.domain.info.PostErrorInfo;
+import com.test.ludence.common.error.info.PostErrorInfo;
 import com.test.ludence.post.repository.PostHeartAccess;
 import com.test.ludence.post.repository.PostRepository;
 import java.util.List;

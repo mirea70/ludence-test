@@ -1,6 +1,6 @@
 package com.test.ludence.auth.service;
 
-import com.test.ludence.auth.domain.info.AuthErrorInfo;
+import com.test.ludence.common.error.info.AuthErrorInfo;
 import com.test.ludence.auth.dto.request.AuthRequest;
 import com.test.ludence.auth.dto.response.TokenResponse;
 import com.test.ludence.auth.security.JwtTokenProvider;

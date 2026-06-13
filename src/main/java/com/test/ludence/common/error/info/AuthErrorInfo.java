@@ -1,6 +1,5 @@
-package com.test.ludence.auth.domain.info;
+package com.test.ludence.common.error.info;
 
-import com.test.ludence.common.error.info.ErrorInfo;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

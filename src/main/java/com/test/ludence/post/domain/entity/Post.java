@@ -2,7 +2,7 @@ package com.test.ludence.post.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.test.ludence.common.error.exception.DomainException;
-import com.test.ludence.post.domain.info.PostErrorInfo;
+import com.test.ludence.common.error.info.PostErrorInfo;
 import com.test.ludence.post.domain.vo.PostDescription;
 import com.test.ludence.post.domain.vo.PostImageKey;
 import com.test.ludence.post.domain.vo.PostTitle;

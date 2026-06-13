@@ -5,7 +5,7 @@ import com.test.ludence.common.page.PageRequest;
 import com.test.ludence.post.dto.response.PostDetailResponse;
 import com.test.ludence.post.dto.response.PostPageResponse;
 import com.test.ludence.post.repository.PostRepository;
-import com.test.ludence.user.domain.info.UserErrorInfo;
+import com.test.ludence.common.error.info.UserErrorInfo;
 import com.test.ludence.user.repository.UserRepository;
 import java.util.List;
 import java.util.Objects;

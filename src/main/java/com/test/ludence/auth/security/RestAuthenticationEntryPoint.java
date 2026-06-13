@@ -1,7 +1,7 @@
 package com.test.ludence.auth.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.test.ludence.auth.domain.info.AuthErrorInfo;
+import com.test.ludence.common.error.info.AuthErrorInfo;
 import com.test.ludence.common.error.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,7 +1,7 @@
 package com.test.ludence.user.domain.vo;
 
 import com.test.ludence.common.error.exception.DomainException;
-import com.test.ludence.user.domain.info.UserErrorInfo;
+import com.test.ludence.common.error.info.UserErrorInfo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.util.regex.Pattern;

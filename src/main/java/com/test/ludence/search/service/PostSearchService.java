@@ -5,7 +5,7 @@ import com.test.ludence.common.page.PageRequest;
 import com.test.ludence.post.dto.response.PostDetailResponse;
 import com.test.ludence.post.dto.response.PostPageResponse;
 import com.test.ludence.post.repository.PostRepository;
-import com.test.ludence.search.domain.info.SearchErrorInfo;
+import com.test.ludence.common.error.info.SearchErrorInfo;
 import com.test.ludence.search.domain.event.PostSearchedEvent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

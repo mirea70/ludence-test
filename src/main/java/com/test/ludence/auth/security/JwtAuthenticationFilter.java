@@ -1,6 +1,6 @@
 package com.test.ludence.auth.security;
 
-import com.test.ludence.auth.domain.info.AuthErrorInfo;
+import com.test.ludence.common.error.info.AuthErrorInfo;
 import com.test.ludence.common.error.exception.BusinessException;
 import com.test.ludence.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;

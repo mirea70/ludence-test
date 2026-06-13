@@ -5,7 +5,7 @@ import com.test.ludence.heart.domain.entity.PostHeartCount;
 import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
 import com.test.ludence.post.domain.entity.Post;
-import com.test.ludence.post.domain.info.PostErrorInfo;
+import com.test.ludence.common.error.info.PostErrorInfo;
 import com.test.ludence.post.repository.PostRepository;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;

@@ -2,10 +2,10 @@ package com.test.ludence.heart.service;
 
 import com.test.ludence.common.error.exception.BusinessException;
 import com.test.ludence.heart.domain.entity.Heart;
-import com.test.ludence.heart.domain.info.HeartErrorInfo;
+import com.test.ludence.common.error.info.HeartErrorInfo;
 import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
-import com.test.ludence.post.domain.info.PostErrorInfo;
+import com.test.ludence.common.error.info.PostErrorInfo;
 import com.test.ludence.post.repository.PostRepository;
 import com.test.ludence.recommendation.service.RecommendationRefreshService;
 import lombok.RequiredArgsConstructor;

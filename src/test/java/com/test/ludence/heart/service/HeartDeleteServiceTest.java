@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.test.ludence.common.error.exception.BusinessException;
-import com.test.ludence.heart.domain.info.HeartErrorInfo;
+import com.test.ludence.common.error.info.HeartErrorInfo;
 import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
 import com.test.ludence.post.repository.PostRepository;

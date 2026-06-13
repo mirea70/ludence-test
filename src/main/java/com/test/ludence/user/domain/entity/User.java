@@ -2,7 +2,7 @@ package com.test.ludence.user.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.test.ludence.common.error.exception.DomainException;
-import com.test.ludence.user.domain.info.UserErrorInfo;
+import com.test.ludence.common.error.info.UserErrorInfo;
 import com.test.ludence.user.domain.vo.Username;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
