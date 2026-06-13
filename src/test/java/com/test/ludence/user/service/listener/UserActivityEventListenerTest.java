@@ -1,16 +1,19 @@
 package com.test.ludence.user.service.listener;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.test.ludence.post.domain.event.PostViewedEvent;
 import com.test.ludence.search.domain.event.PostSearchedEvent;
 import com.test.ludence.user.service.UserActivityService;
+import java.lang.reflect.Method;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.scheduling.annotation.Async;
 
 @DisplayName("UserActivityEventListener 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -45,5 +48,17 @@ class UserActivityEventListenerTest {
 
         // then
         verifyNoInteractions(userActivityService);
+    }
+
+    @Test
+    @DisplayName("사용자 활동 전용 실행기에서 이벤트를 처리한다")
+    void handlesEventsWithUserActivityExecutor() throws NoSuchMethodException {
+        // when
+        Method postViewedHandler = UserActivityEventListener.class.getMethod("handle", PostViewedEvent.class);
+        Method postSearchedHandler = UserActivityEventListener.class.getMethod("handle", PostSearchedEvent.class);
+
+        // then
+        assertThat(postViewedHandler.getAnnotation(Async.class).value()).isEqualTo("userActivityTaskExecutor");
+        assertThat(postSearchedHandler.getAnnotation(Async.class).value()).isEqualTo("userActivityTaskExecutor");
     }
 }

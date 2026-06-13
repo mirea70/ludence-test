@@ -14,7 +14,7 @@ public class PostViewCountEventListener {
 
     private final PostViewCountService postViewCountService;
 
-    @Async("activityTaskExecutor")
+    @Async("postViewCountTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(PostViewedEvent event) {
         postViewCountService.recordView(event.postId());

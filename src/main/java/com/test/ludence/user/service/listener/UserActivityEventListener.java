@@ -16,7 +16,7 @@ public class UserActivityEventListener {
     private final UserActivityService userActivityService;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Async("activityTaskExecutor")
+    @Async("userActivityTaskExecutor")
     public void handle(PostViewedEvent event) {
         if (event.userId() == null) {
             return;
@@ -25,7 +25,7 @@ public class UserActivityEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Async("activityTaskExecutor")
+    @Async("userActivityTaskExecutor")
     public void handle(PostSearchedEvent event) {
         userActivityService.recordSearch(event.userId(), event.query());
     }
