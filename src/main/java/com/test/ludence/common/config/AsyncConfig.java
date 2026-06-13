@@ -14,19 +14,19 @@ public class AsyncConfig {
 
     @Bean
     public Executor postViewCountTaskExecutor() {
-        return createExecutor("post-view-count-", 2, 4, 100);
+        return createExecutor("post-view-count-", 4, 6, 1000);
     }
 
     @Bean
     public Executor userActivityTaskExecutor() {
-        return createExecutor("user-activity-", 4, 8, 100);
+        return createExecutor("user-activity-", 6, 10, 1000);
     }
 
     private Executor createExecutor(String threadNamePrefix, int corePoolSize, int maximumPoolSize, int queueCapacity) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(4);
-        executor.setQueueCapacity(500);
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maximumPoolSize);
+        executor.setQueueCapacity(queueCapacity);
         executor.setThreadNamePrefix(threadNamePrefix);
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executor.initialize();
