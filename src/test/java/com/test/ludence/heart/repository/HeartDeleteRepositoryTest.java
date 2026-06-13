@@ -3,6 +3,7 @@ package com.test.ludence.heart.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.test.ludence.heart.domain.entity.Heart;
+import com.test.ludence.heart.domain.entity.PostHeartCount;
 import com.test.ludence.support.JpaTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,5 +36,26 @@ class HeartDeleteRepositoryTest extends JpaTestSupport {
 
         // then
         assertThat(deletedCount).isZero();
+    }
+
+    @Test
+    @DisplayName("포스트 하트 집계값을 0 미만으로 만들지 않고 원자적으로 감소시킨다")
+    void decreasesPostHeartCountWithoutGoingBelowZero() {
+        // given
+        PostHeartCount heartCount = PostHeartCount.create(10L);
+        heartCount.increment();
+        postHeartCountRepository.save(heartCount);
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        long firstUpdatedCount = postHeartCountRepository.decrease(10L, 1L);
+        long secondUpdatedCount = postHeartCountRepository.decrease(10L, 1L);
+        entityManager.clear();
+
+        // then
+        assertThat(firstUpdatedCount).isEqualTo(1L);
+        assertThat(secondUpdatedCount).isZero();
+        assertThat(postHeartCountRepository.findById(10L).orElseThrow().getCount()).isZero();
     }
 }

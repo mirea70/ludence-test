@@ -1,7 +1,6 @@
 package com.test.ludence.heart.service;
 
 import com.test.ludence.common.error.exception.BusinessException;
-import com.test.ludence.heart.domain.entity.PostHeartCount;
 import com.test.ludence.heart.domain.info.HeartErrorInfo;
 import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
@@ -24,14 +23,27 @@ public class HeartDeleteService {
     @Transactional
     public void deleteHeart(Long userId, Long postId) {
         recommendationRefreshService.requestRefresh(userId);
-        PostHeartCount heartCount = postHeartCountRepository.findByIdForUpdate(postId)
-                .orElseThrow(() -> new BusinessException(PostErrorInfo.NOT_FOUND));
+
+        decreaseHeartCount(postId);
+        validatePostExists(postId);
+        deleteData(userId, postId);
+    }
+
+    private void decreaseHeartCount(Long postId) {
+        if (postHeartCountRepository.decrease(postId, 1) != 1) {
+            throw new BusinessException(HeartErrorInfo.NOT_FOUND_COUNT);
+        }
+    }
+
+    private void validatePostExists(Long postId) {
         if (!postRepository.existsByIdAndDeletedAtIsNull(postId)) {
             throw new BusinessException(PostErrorInfo.NOT_FOUND);
         }
+    }
+
+    private void deleteData(Long userId, Long postId) {
         if (heartRepository.deleteByUserIdAndPostId(userId, postId) == 0) {
             throw new BusinessException(HeartErrorInfo.NOT_FOUND);
         }
-        heartCount.decrement();
     }
 }

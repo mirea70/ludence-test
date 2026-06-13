@@ -14,6 +14,15 @@ public class PostHeartCountRepositoryImpl implements PostHeartCountRepositoryCus
     private final JPAQueryFactory queryFactory;
 
     @Override
+    public long increase(Long postId) {
+        return queryFactory
+                .update(postHeartCount)
+                .set(postHeartCount.count, postHeartCount.count.add(1))
+                .where(postHeartCount.postId.eq(postId))
+                .execute();
+    }
+
+    @Override
     public long decrease(Long postId, long amount) {
         return queryFactory
                 .update(postHeartCount)

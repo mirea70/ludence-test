@@ -2,7 +2,6 @@ package com.test.ludence.heart.service;
 
 import com.test.ludence.common.error.exception.BusinessException;
 import com.test.ludence.heart.domain.entity.Heart;
-import com.test.ludence.heart.domain.entity.PostHeartCount;
 import com.test.ludence.heart.domain.info.HeartErrorInfo;
 import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
@@ -26,16 +25,25 @@ public class HeartCreateService {
     @Transactional
     public void createHeart(Long userId, Long postId) {
         recommendationRefreshService.requestRefresh(userId);
-        PostHeartCount heartCount = postHeartCountRepository.findByIdForUpdate(postId)
-                .orElseThrow(() -> new BusinessException(PostErrorInfo.NOT_FOUND));
+
+        increaseHeartCount(postId);
+        validatePostExists(postId);
+        saveData(userId, postId);
+    }
+
+    private void increaseHeartCount(Long postId) {
+        if (postHeartCountRepository.increase(postId) != 1) {
+            throw new BusinessException(HeartErrorInfo.NOT_FOUND_COUNT);
+        }
+    }
+
+    private void validatePostExists(Long postId) {
         if (!postRepository.existsByIdAndDeletedAtIsNull(postId)) {
             throw new BusinessException(PostErrorInfo.NOT_FOUND);
         }
-        saveHeart(userId, postId);
-        heartCount.increment();
     }
 
-    private void saveHeart(Long userId, Long postId) {
+    private void saveData(Long userId, Long postId) {
         try {
             heartRepository.saveAndFlush(Heart.create(userId, postId));
         } catch (DataIntegrityViolationException exception) {

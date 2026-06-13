@@ -11,17 +11,29 @@ import org.junit.jupiter.api.Test;
 class HeartCreateRepositoryTest extends JpaTestSupport {
 
     @Test
-    @DisplayName("포스트 하트 집계 행을 수정용 잠금으로 조회한다")
-    void findsPostHeartCountForUpdate() {
+    @DisplayName("포스트 하트 집계값을 원자적으로 증가시킨다")
+    void increasesPostHeartCount() {
         // given
         postHeartCountRepository.save(PostHeartCount.create(10L));
         entityManager.flush();
         entityManager.clear();
 
         // when
-        PostHeartCount heartCount = postHeartCountRepository.findByIdForUpdate(10L).orElseThrow();
+        long updatedCount = postHeartCountRepository.increase(10L);
+        entityManager.clear();
 
         // then
-        assertThat(heartCount.getPostId()).isEqualTo(10L);
+        assertThat(updatedCount).isEqualTo(1L);
+        assertThat(postHeartCountRepository.findById(10L).orElseThrow().getCount()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("하트 집계 행이 없으면 증가 건수 0을 반환한다")
+    void returnsZero_whenPostHeartCountDoesNotExist() {
+        // when
+        long updatedCount = postHeartCountRepository.increase(10L);
+
+        // then
+        assertThat(updatedCount).isZero();
     }
 }

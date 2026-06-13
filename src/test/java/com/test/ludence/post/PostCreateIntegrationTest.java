@@ -269,7 +269,7 @@ class PostCreateIntegrationTest extends IntegrationTestSupport {
         mockMvc.perform(post("/posts/{id}/heart", Long.MAX_VALUE)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("POST_008"));
+                .andExpect(jsonPath("$.code").value("HEART_005"));
     }
 
     @Test
@@ -318,12 +318,12 @@ class PostCreateIntegrationTest extends IntegrationTestSupport {
         mockMvc.perform(delete("/posts/{id}/heart", createdPostId)
                         .header("Authorization", "Bearer " + viewerToken))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("HEART_004"));
+                .andExpect(jsonPath("$.code").value("HEART_005"));
 
         mockMvc.perform(delete("/posts/{id}/heart", Long.MAX_VALUE)
                         .header("Authorization", "Bearer " + viewerToken))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("POST_008"));
+                .andExpect(jsonPath("$.code").value("HEART_005"));
     }
 
     @Test
