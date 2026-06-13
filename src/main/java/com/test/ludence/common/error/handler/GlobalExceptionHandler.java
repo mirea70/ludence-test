@@ -6,12 +6,13 @@ import com.test.ludence.common.error.info.CommonErrorInfo;
 import com.test.ludence.common.error.info.ErrorInfo;
 import com.test.ludence.common.error.info.SystemErrorInfo;
 import com.test.ludence.common.error.response.ErrorResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.Clock;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
@@ -28,6 +30,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 public class GlobalExceptionHandler {
 
     private final Clock clock;
+    private final MultipartProperties multipartProperties;
 
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> handleDomainException(
@@ -87,10 +90,19 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         ErrorInfo errorInfo = SystemErrorInfo.CAPACITY_EXCEEDED;
-        ErrorResponse response = createErrorResponse(errorInfo, request);
+        ErrorResponse response = new ErrorResponse(clock, errorInfo, request);
         return ResponseEntity.status(errorInfo.getStatus())
                 .header(HttpHeaders.RETRY_AFTER, "1")
                 .body(response);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException exception,
+            HttpServletRequest request
+    ) {
+        Map<String, Object> details = Map.of("업로드 파일 최대 허용 크기 : ", multipartProperties.getMaxFileSize().toString());
+        return createResponse(SystemErrorInfo.UPLOAD_SIZE_EXCEEDED, request, details);
     }
 
     @ExceptionHandler(Exception.class)
@@ -103,16 +115,15 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ErrorResponse> createResponse(ErrorInfo errorInfo, HttpServletRequest request) {
-        return ResponseEntity.status(errorInfo.getStatus()).body(createErrorResponse(errorInfo, request));
+        return ResponseEntity.status(errorInfo.getStatus()).body(new ErrorResponse(clock, errorInfo, request));
     }
 
-    private ErrorResponse createErrorResponse(ErrorInfo errorInfo, HttpServletRequest request) {
-        return new ErrorResponse(
-                clock,
-                errorInfo.getCode(),
-                errorInfo.getMessage(),
-                request.getRequestURI()
-        );
+    private ResponseEntity<ErrorResponse> createResponse(
+            ErrorInfo errorInfo,
+            HttpServletRequest request,
+            Map<String, Object> details
+    ) {
+        return ResponseEntity.status(errorInfo.getStatus()).body(new ErrorResponse(clock, errorInfo, request, details));
     }
 
     private String getValidationMessage(String message) {

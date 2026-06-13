@@ -21,6 +21,7 @@ import com.test.ludence.search.service.PostSearchService;
 import com.test.ludence.user.service.UserService;
 import com.test.ludence.user.service.UserHeartQueryService;
 import com.test.ludence.user.service.UserPostQueryService;
+import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -64,6 +65,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+
+    @MockitoBean
+    protected MultipartProperties multipartProperties;
 
     @MockitoBean
     protected UserService userService;

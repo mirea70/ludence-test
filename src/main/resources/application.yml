@@ -4,7 +4,6 @@ server:
       max: 200
       min-spare: 20
     accept-count: 20
-    max-connections: 10000
 
 spring:
   application:
@@ -23,7 +22,6 @@ spring:
   servlet:
     multipart:
       max-file-size: 2MB
-      max-request-size: 3MB
 
 storage:
   image-directory: ${IMAGE_STORAGE_DIRECTORY:./data/images}
