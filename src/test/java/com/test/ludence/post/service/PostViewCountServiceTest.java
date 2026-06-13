@@ -1,11 +1,9 @@
 package com.test.ludence.post.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
-import com.test.ludence.post.domain.entity.PostViewCount;
 import com.test.ludence.post.repository.PostViewCountRepository;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,14 +21,13 @@ class PostViewCountServiceTest {
     @DisplayName("포스트 조회를 기록하면 조회 수를 증가시킨다")
     void incrementsViewCount_whenPostViewIsRecorded() {
         // given
-        PostViewCount viewCount = PostViewCount.create(10L);
-        given(postViewCountRepository.findByIdForUpdate(10L)).willReturn(Optional.of(viewCount));
+        given(postViewCountRepository.increment(10L)).willReturn(1L);
         PostViewCountService service = new PostViewCountService(postViewCountRepository);
 
         // when
         service.recordView(10L);
 
         // then
-        assertThat(viewCount.getCount()).isEqualTo(1L);
+        verify(postViewCountRepository).increment(10L);
     }
 }

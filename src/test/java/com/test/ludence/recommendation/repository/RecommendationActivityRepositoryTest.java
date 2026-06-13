@@ -28,7 +28,7 @@ class RecommendationActivityRepositoryTest extends JpaTestSupport {
         entityManager.clear();
 
         // when
-        PostViewCount viewCount = postViewCountRepository.findByIdForUpdate(10L).orElseThrow();
+        long incrementedViewCount = postViewCountRepository.increment(10L);
         UserPostView postView = userPostViewRepository.findByUserIdAndPostIdForUpdate(1L, 10L).orElseThrow();
         UserSearchKeyword keyword = userSearchKeywordRepository
                 .findByUserIdAndKeywordForUpdate(1L, "spring")
@@ -37,7 +37,8 @@ class RecommendationActivityRepositoryTest extends JpaTestSupport {
         RecommendationState state = recommendationStateRepository.findById(1L).orElseThrow();
 
         // then
-        assertThat(viewCount.getPostId()).isEqualTo(10L);
+        assertThat(incrementedViewCount).isEqualTo(1L);
+        assertThat(postViewCountRepository.findById(10L).orElseThrow().getCount()).isEqualTo(1L);
         assertThat(postView.getPostId()).isEqualTo(10L);
         assertThat(keyword.getKeyword()).isEqualTo("spring");
         assertThat(state.getUserId()).isEqualTo(1L);

@@ -12,8 +12,10 @@ import com.test.ludence.common.storage.StagedImage;
 import com.test.ludence.heart.domain.entity.PostHeartCount;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
 import com.test.ludence.post.domain.entity.Post;
+import com.test.ludence.post.domain.entity.PostViewCount;
 import com.test.ludence.post.dto.response.PostIdResponse;
 import com.test.ludence.post.repository.PostRepository;
+import com.test.ludence.post.repository.PostViewCountRepository;
 import com.test.ludence.user.domain.entity.User;
 import com.test.ludence.user.repository.UserRepository;
 import java.nio.file.Path;
@@ -47,6 +49,9 @@ class PostCreateTransactionServiceTest {
     private PostHeartCountRepository postHeartCountRepository;
 
     @Mock
+    private PostViewCountRepository postViewCountRepository;
+
+    @Mock
     private ImageStorage imageStorage;
 
     @Test
@@ -74,6 +79,9 @@ class PostCreateTransactionServiceTest {
         ArgumentCaptor<PostHeartCount> countCaptor = ArgumentCaptor.forClass(PostHeartCount.class);
         verify(postHeartCountRepository).saveAndFlush(countCaptor.capture());
         assertThat(countCaptor.getValue().getPostId()).isEqualTo(10L);
+        ArgumentCaptor<PostViewCount> viewCountCaptor = ArgumentCaptor.forClass(PostViewCount.class);
+        verify(postViewCountRepository).saveAndFlush(viewCountCaptor.capture());
+        assertThat(viewCountCaptor.getValue().getPostId()).isEqualTo(10L);
         verify(imageStorage).commit(stagedImage);
     }
 
@@ -97,6 +105,7 @@ class PostCreateTransactionServiceTest {
                 userRepository,
                 postRepository,
                 postHeartCountRepository,
+                postViewCountRepository,
                 imageStorage,
                 clock
         );

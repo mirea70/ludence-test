@@ -6,8 +6,10 @@ import com.test.ludence.common.storage.StagedImage;
 import com.test.ludence.heart.domain.entity.PostHeartCount;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
 import com.test.ludence.post.domain.entity.Post;
+import com.test.ludence.post.domain.entity.PostViewCount;
 import com.test.ludence.post.dto.response.PostIdResponse;
 import com.test.ludence.post.repository.PostRepository;
+import com.test.ludence.post.repository.PostViewCountRepository;
 import com.test.ludence.user.domain.info.UserErrorInfo;
 import com.test.ludence.user.repository.UserRepository;
 import java.time.Clock;
@@ -22,6 +24,7 @@ public class PostCreateTransactionService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostHeartCountRepository postHeartCountRepository;
+    private final PostViewCountRepository postViewCountRepository;
     private final ImageStorage imageStorage;
     private final Clock clock;
 
@@ -34,6 +37,8 @@ public class PostCreateTransactionService {
                 Post.create(authorId, title, description, stagedImage.key(), clock.instant())
         );
         postHeartCountRepository.saveAndFlush(PostHeartCount.create(post.getId()));
+        postViewCountRepository.saveAndFlush(PostViewCount.create(post.getId()));
+
         imageStorage.commit(stagedImage);
         return new PostIdResponse(post.getId());
     }

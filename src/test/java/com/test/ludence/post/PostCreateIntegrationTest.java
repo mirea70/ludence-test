@@ -19,6 +19,7 @@ import com.test.ludence.heart.repository.HeartRepository;
 import com.test.ludence.post.dto.request.PostUpdateRequest;
 import com.test.ludence.heart.repository.PostHeartCountRepository;
 import com.test.ludence.post.repository.PostRepository;
+import com.test.ludence.post.repository.PostViewCountRepository;
 import com.test.ludence.support.IntegrationTestSupport;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,6 +44,9 @@ class PostCreateIntegrationTest extends IntegrationTestSupport {
 
     @Autowired
     private PostHeartCountRepository postHeartCountRepository;
+
+    @Autowired
+    private PostViewCountRepository postViewCountRepository;
 
     @Autowired
     private HeartRepository heartRepository;
@@ -83,6 +87,7 @@ class PostCreateIntegrationTest extends IntegrationTestSupport {
         // then
         assertThat(postRepository.findById(createdPostId)).isPresent();
         assertThat(postHeartCountRepository.findById(createdPostId)).isPresent();
+        assertThat(postViewCountRepository.findById(createdPostId)).isPresent();
         assertThat(createdImageKey).matches("[0-9a-f-]{36}\\.png");
         assertThat(createdImageKey).isNotEqualTo(createdPostId + ".png");
         assertThat(Files.readAllBytes(Path.of(imageDirectory).resolve(createdImageKey))).isEqualTo(PNG_IMAGE);

@@ -3,9 +3,6 @@ package com.test.ludence.post.repository;
 import static com.test.ludence.post.domain.entity.QPostViewCount.postViewCount;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.test.ludence.post.domain.entity.PostViewCount;
-import jakarta.persistence.LockModeType;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -14,11 +11,11 @@ public class PostViewCountRepositoryImpl implements PostViewCountRepositoryCusto
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<PostViewCount> findByIdForUpdate(Long postId) {
-        return Optional.ofNullable(queryFactory
-                .selectFrom(postViewCount)
+    public long increment(Long postId) {
+        return queryFactory
+                .update(postViewCount)
+                .set(postViewCount.count, postViewCount.count.add(1))
                 .where(postViewCount.postId.eq(postId))
-                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-                .fetchOne());
+                .execute();
     }
 }
