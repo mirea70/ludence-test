@@ -13,6 +13,4 @@ public interface UserSearchKeywordRepositoryCustom {
     Optional<UserSearchKeyword> findByUserIdAndKeywordForUpdate(Long userId, String keyword);
 
     List<UserSearchKeywordId> findIdsLastSearchedBefore(Instant expiredAt, int limit);
-
-    List<UserSearchKeywordId> findIdsExceedingLimitByUserId(Long userId, int maxCount);
 }

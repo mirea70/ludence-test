@@ -4,8 +4,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import com.test.ludence.recommendation.service.RecommendationRefreshService;
-import com.test.ludence.user.domain.vo.UserPostViewId;
-import com.test.ludence.user.domain.vo.UserSearchKeywordId;
 import com.test.ludence.user.repository.UserPostViewRepository;
 import com.test.ludence.user.repository.UserSearchKeywordRepository;
 import com.test.ludence.user.repository.UserRepository;
@@ -14,7 +12,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Optional;
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,8 +42,6 @@ class UserActivityServiceTest {
     void recordsPostViewAndRequestsRefresh_whenUserViewsPost() {
         // given
         given(userRepository.findByIdAndDeletedAtIsNull(1L)).willReturn(Optional.of(user()));
-        UserPostViewId excessId = new UserPostViewId(1L, 9L);
-        given(userPostViewRepository.findIdsExceedingLimitByUserId(1L, 100)).willReturn(List.of(excessId));
         UserActivityService service = service();
 
         // when
@@ -54,7 +49,6 @@ class UserActivityServiceTest {
 
         // then
         verify(userPostViewRepository).upsert(1L, 10L, NOW);
-        verify(userPostViewRepository).deleteAllByIdInBatch(List.of(excessId));
         verify(recommendationRefreshService).requestRefresh(1L);
     }
 
@@ -63,8 +57,6 @@ class UserActivityServiceTest {
     void recordsSearchAndRequestsRefresh_whenUserSearches() {
         // given
         given(userRepository.findByIdAndDeletedAtIsNull(1L)).willReturn(Optional.of(user()));
-        UserSearchKeywordId excessId = new UserSearchKeywordId(1L, "old");
-        given(userSearchKeywordRepository.findIdsExceedingLimitByUserId(1L, 20)).willReturn(List.of(excessId));
         UserActivityService service = service();
 
         // when
@@ -72,7 +64,6 @@ class UserActivityServiceTest {
 
         // then
         verify(userSearchKeywordRepository).upsert(1L, "spring", NOW);
-        verify(userSearchKeywordRepository).deleteAllByIdInBatch(List.of(excessId));
         verify(recommendationRefreshService).requestRefresh(1L);
     }
 

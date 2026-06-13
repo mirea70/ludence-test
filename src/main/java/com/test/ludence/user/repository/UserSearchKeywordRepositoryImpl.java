@@ -80,19 +80,4 @@ public class UserSearchKeywordRepositoryImpl implements UserSearchKeywordReposit
                 .limit(limit)
                 .fetch();
     }
-
-    @Override
-    public List<UserSearchKeywordId> findIdsExceedingLimitByUserId(Long userId, int maxCount) {
-        return queryFactory
-                .select(Projections.constructor(
-                        UserSearchKeywordId.class,
-                        userSearchKeyword.id.userId,
-                        userSearchKeyword.id.keyword
-                ))
-                .from(userSearchKeyword)
-                .where(userSearchKeyword.id.userId.eq(userId))
-                .orderBy(userSearchKeyword.lastSearchedAt.desc(), userSearchKeyword.id.keyword.desc())
-                .offset(maxCount)
-                .fetch();
-    }
 }

@@ -43,29 +43,4 @@ class UserActivityCleanupRepositoryTest extends JpaTestSupport {
         assertThat(viewIds).containsExactly(new UserPostViewId(1L, 1L));
         assertThat(keywordIds).containsExactly(new UserSearchKeywordId(1L, "oldest"));
     }
-
-    @Test
-    @DisplayName("특정 사용자의 최신 최대 개수 이후 조회와 검색 이력 ID를 조회한다")
-    void findsActivityIdsExceedingLimitByUserId() {
-        // given
-        for (long index = 1; index <= 4; index++) {
-            userPostViewRepository.save(UserPostView.create(1L, index, NOW.plusSeconds(index)));
-            userSearchKeywordRepository.save(UserSearchKeyword.create(1L, "keyword_" + index, NOW.plusSeconds(index)));
-        }
-        userPostViewRepository.save(UserPostView.create(2L, 10L, NOW));
-        userSearchKeywordRepository.save(UserSearchKeyword.create(2L, "other", NOW));
-        entityManager.flush();
-        entityManager.clear();
-
-        // when
-        List<UserPostViewId> viewIds = userPostViewRepository.findIdsExceedingLimitByUserId(1L, 2);
-        List<UserSearchKeywordId> keywordIds = userSearchKeywordRepository.findIdsExceedingLimitByUserId(1L, 2);
-
-        // then
-        assertThat(viewIds).containsExactlyInAnyOrder(new UserPostViewId(1L, 1L), new UserPostViewId(1L, 2L));
-        assertThat(keywordIds).containsExactlyInAnyOrder(
-                new UserSearchKeywordId(1L, "keyword_1"),
-                new UserSearchKeywordId(1L, "keyword_2")
-        );
-    }
 }

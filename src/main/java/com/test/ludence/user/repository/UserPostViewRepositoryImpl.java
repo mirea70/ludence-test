@@ -77,19 +77,4 @@ public class UserPostViewRepositoryImpl implements UserPostViewRepositoryCustom 
                 .limit(limit)
                 .fetch();
     }
-
-    @Override
-    public List<UserPostViewId> findIdsExceedingLimitByUserId(Long userId, int maxCount) {
-        return queryFactory
-                .select(Projections.constructor(
-                        UserPostViewId.class,
-                        userPostView.id.userId,
-                        userPostView.id.postId
-                ))
-                .from(userPostView)
-                .where(userPostView.id.userId.eq(userId))
-                .orderBy(userPostView.lastViewedAt.desc(), userPostView.id.postId.desc())
-                .offset(maxCount)
-                .fetch();
-    }
 }

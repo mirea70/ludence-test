@@ -47,10 +47,8 @@ class UserActivityServiceIntegrationTest {
         if (userId == null) {
             return;
         }
-        userPostViewRepository.deleteAllByIdInBatch(userPostViewRepository.findIdsExceedingLimitByUserId(userId, 0));
-        userSearchKeywordRepository.deleteAllByIdInBatch(
-                userSearchKeywordRepository.findIdsExceedingLimitByUserId(userId, 0)
-        );
+        userPostViewRepository.deleteAllInBatch();
+        userSearchKeywordRepository.deleteAllInBatch();
         recommendationStateRepository.deleteById(userId);
         userRepository.deleteById(userId);
     }
@@ -73,8 +71,8 @@ class UserActivityServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("행동 이력을 기록하면 사용자별 최대 개수를 초과한 오래된 이력을 삭제한다")
-    void trimsOldActivities_whenRecordingActivity() {
+    @DisplayName("행동 이력을 기록할 때 사용자별 개수 제한으로 기존 이력을 삭제하지 않는다")
+    void retainsActivitiesWithoutPerUserLimit_whenRecordingActivity() {
         // given
         Instant now = Instant.now();
         User user = userRepository.saveAndFlush(User.create("history_viewer", "encoded-password", now));
@@ -95,11 +93,11 @@ class UserActivityServiceIntegrationTest {
         userActivityService.recordSearch(userId, "new_keyword");
 
         // then
-        assertThat(userPostViewRepository.findIdsExceedingLimitByUserId(userId, 0)).hasSize(100);
-        assertThat(userPostViewRepository.findById(new UserPostViewId(userId, 1L))).isEmpty();
+        assertThat(userPostViewRepository.count()).isEqualTo(101);
+        assertThat(userPostViewRepository.findById(new UserPostViewId(userId, 1L))).isPresent();
         assertThat(userPostViewRepository.findById(new UserPostViewId(userId, 101L))).isPresent();
-        assertThat(userSearchKeywordRepository.findIdsExceedingLimitByUserId(userId, 0)).hasSize(20);
-        assertThat(userSearchKeywordRepository.findById(new UserSearchKeywordId(userId, "keyword_1"))).isEmpty();
+        assertThat(userSearchKeywordRepository.count()).isEqualTo(21);
+        assertThat(userSearchKeywordRepository.findById(new UserSearchKeywordId(userId, "keyword_1"))).isPresent();
         assertThat(userSearchKeywordRepository.findById(new UserSearchKeywordId(userId, "new_keyword"))).isPresent();
     }
 }
