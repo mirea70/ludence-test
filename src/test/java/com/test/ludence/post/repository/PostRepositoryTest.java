@@ -205,6 +205,31 @@ class PostRepositoryTest extends JpaTestSupport {
         assertThat(newPost.getId()).isNotNull();
     }
 
+    @Test
+    @DisplayName("활성/삭제 게시글의 이미지 키를 모두 조회한다")
+    void findsAllImageKeys_includingDeletedPosts() {
+        // given
+        User author = userRepository.save(User.create("author", "encoded-password", CREATED_AT));
+        Post activePost = postRepository.save(Post.create(
+                author.getId(), "active", null, "550e8400-e29b-41d4-a716-446655440010.png", CREATED_AT
+        ));
+        Post deletedPost = postRepository.save(Post.create(
+                author.getId(), "deleted", null, "550e8400-e29b-41d4-a716-446655440011.png", CREATED_AT.plusSeconds(60)
+        ));
+        deletedPost.delete(CREATED_AT.plusSeconds(120));
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        List<String> imageKeys = postRepository.findAllImageKeys();
+
+        // then
+        assertThat(imageKeys).containsExactlyInAnyOrder(
+                activePost.getImageKey(),
+                deletedPost.getImageKey()
+        );
+    }
+
     private Post savePost(Long authorId, String title, String description, int imageSuffix, long createdOffset) {
         Post post = postRepository.save(Post.create(
                 authorId,

@@ -40,4 +40,6 @@ public interface PostRepositoryCustom {
     long countActiveByQuery(String query);
 
     List<PostDetailResponse> findAllActiveDetails();
+
+    List<String> findAllImageKeys();
 }

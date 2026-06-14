@@ -275,6 +275,14 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .fetch();
     }
 
+    @Override
+    public List<String> findAllImageKeys() {
+        return queryFactory
+                .select(post.imageKey.value)
+                .from(post)
+                .fetch();
+    }
+
     private BooleanExpression containsQuery(String query) {
         if (query == null) {
             return null;
