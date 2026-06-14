@@ -1,9 +1,13 @@
 package com.test.ludens.post.repository;
 
 import static com.test.ludens.post.domain.entity.QPost.post;
+import static com.test.ludens.post.domain.entity.QPostViewCount.postViewCount;
 import static com.test.ludens.heart.domain.entity.QHeart.heart;
 import static com.test.ludens.heart.domain.entity.QPostHeartCount.postHeartCount;
+import static com.test.ludens.recommendation.domain.entity.QCommonRecommendation.commonRecommendation;
+import static com.test.ludens.recommendation.domain.entity.QUserRecommendation.userRecommendation;
 import static com.test.ludens.user.domain.entity.QUser.user;
+import static com.test.ludens.user.domain.entity.QUserPostView.userPostView;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
@@ -15,6 +19,7 @@ import com.test.ludens.post.dto.response.PostDetailResponse;
 import com.test.ludens.post.domain.entity.Post;
 import com.test.ludens.common.page.PageRequest;
 import jakarta.persistence.LockModeType;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -281,6 +286,62 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .select(post.imageKey.value)
                 .from(post)
                 .fetch();
+    }
+
+    @Override
+    public List<PostCleanupCandidate> findCleanupCandidates(
+            Instant expiredAt,
+            Instant cursorDeletedAt,
+            Long cursorPostId,
+            int limit
+    ) {
+        return queryFactory
+                .select(Projections.constructor(
+                        PostCleanupCandidate.class,
+                        post.id,
+                        post.imageKey.value,
+                        post.deletedAt
+                ))
+                .from(post)
+                .where(
+                        post.deletedAt.loe(expiredAt),
+                        afterCleanupCursor(cursorDeletedAt, cursorPostId)
+                )
+                .orderBy(post.deletedAt.asc(), post.id.asc())
+                .limit(limit)
+                .fetch();
+    }
+
+    @Override
+    public long deleteExpiredPostData(Long postId, Instant expiredAt) {
+        Long lockedPostId = queryFactory
+                .select(post.id)
+                .from(post)
+                .where(
+                        post.id.eq(postId),
+                        post.deletedAt.loe(expiredAt)
+                )
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .fetchOne();
+        if (lockedPostId == null) {
+            return 0;
+        }
+
+        queryFactory.delete(heart).where(heart.id.postId.eq(postId)).execute();
+        queryFactory.delete(userPostView).where(userPostView.id.postId.eq(postId)).execute();
+        queryFactory.delete(userRecommendation).where(userRecommendation.id.postId.eq(postId)).execute();
+        queryFactory.delete(commonRecommendation).where(commonRecommendation.postId.eq(postId)).execute();
+        queryFactory.delete(postViewCount).where(postViewCount.postId.eq(postId)).execute();
+        queryFactory.delete(postHeartCount).where(postHeartCount.postId.eq(postId)).execute();
+        return queryFactory.delete(post).where(post.id.eq(postId)).execute();
+    }
+
+    private BooleanExpression afterCleanupCursor(Instant cursorDeletedAt, Long cursorPostId) {
+        if (cursorDeletedAt == null || cursorPostId == null) {
+            return null;
+        }
+        return post.deletedAt.gt(cursorDeletedAt)
+                .or(post.deletedAt.eq(cursorDeletedAt).and(post.id.gt(cursorPostId)));
     }
 
     private BooleanExpression containsQuery(String query) {

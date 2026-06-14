@@ -16,10 +16,16 @@ import lombok.Getter;
 @Entity
 @Table(
         name = "posts",
-        indexes = @Index(
-                name = "idx_posts_author_created",
-                columnList = "author_id, created_at DESC, id DESC"
-        ),
+        indexes = {
+                @Index(
+                        name = "idx_posts_author_created",
+                        columnList = "author_id, created_at DESC, id DESC"
+                ),
+                @Index(
+                        name = "idx_posts_deleted",
+                        columnList = "deleted_at"
+                )
+        },
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_posts_image_key",

@@ -230,6 +230,51 @@ class PostRepositoryTest extends JpaTestSupport {
         );
     }
 
+    @Test
+    @DisplayName("삭제 후 기준 시각이 지난 포스트만 정리 대상으로 조회한다")
+    void findsCleanupCandidates_whenDeletedBeforeThreshold() {
+        // given
+        Post expiredPost = postRepository.save(Post.create(
+                1L, "expired", null, "550e8400-e29b-41d4-a716-446655440020.png", CREATED_AT
+        ));
+        expiredPost.delete(CREATED_AT.plusSeconds(60));
+        Post recentDeletedPost = postRepository.save(Post.create(
+                1L, "recent", null, "550e8400-e29b-41d4-a716-446655440021.png", CREATED_AT
+        ));
+        recentDeletedPost.delete(CREATED_AT.plusSeconds(120));
+        Post boundaryPost = postRepository.save(Post.create(
+                1L, "boundary", null, "550e8400-e29b-41d4-a716-446655440023.png", CREATED_AT
+        ));
+        boundaryPost.delete(CREATED_AT.plusSeconds(90));
+        postRepository.save(Post.create(
+                1L, "active", null, "550e8400-e29b-41d4-a716-446655440022.png", CREATED_AT
+        ));
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        List<PostCleanupCandidate> candidates = postRepository.findCleanupCandidates(
+                CREATED_AT.plusSeconds(90),
+                null,
+                null,
+                100
+        );
+
+        // then
+        assertThat(candidates).containsExactly(
+                new PostCleanupCandidate(
+                        expiredPost.getId(),
+                        expiredPost.getImageKey(),
+                        CREATED_AT.plusSeconds(60)
+                ),
+                new PostCleanupCandidate(
+                        boundaryPost.getId(),
+                        boundaryPost.getImageKey(),
+                        CREATED_AT.plusSeconds(90)
+                )
+        );
+    }
+
     private Post savePost(Long authorId, String title, String description, int imageSuffix, long createdOffset) {
         Post post = postRepository.save(Post.create(
                 authorId,

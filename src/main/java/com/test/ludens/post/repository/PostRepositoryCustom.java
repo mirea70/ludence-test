@@ -3,6 +3,7 @@ package com.test.ludens.post.repository;
 import com.test.ludens.post.domain.entity.Post;
 import com.test.ludens.post.dto.response.PostDetailResponse;
 import com.test.ludens.common.page.PageRequest;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,4 +43,13 @@ public interface PostRepositoryCustom {
     List<PostDetailResponse> findAllActiveDetails();
 
     List<String> findAllImageKeys();
+
+    List<PostCleanupCandidate> findCleanupCandidates(
+            Instant expiredAt,
+            Instant cursorDeletedAt,
+            Long cursorPostId,
+            int limit
+    );
+
+    long deleteExpiredPostData(Long postId, Instant expiredAt);
 }
