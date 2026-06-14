@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
-import org.springframework.core.task.TaskRejectedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -160,18 +159,6 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         return createResponse(CommonErrorInfo.UNSUPPORTED_MEDIA_TYPE, request);
-    }
-
-    @ExceptionHandler(TaskRejectedException.class)
-    public ResponseEntity<ErrorResponse> handleTaskRejectedException(
-            TaskRejectedException exception,
-            HttpServletRequest request
-    ) {
-        ErrorInfo errorInfo = SystemErrorInfo.CAPACITY_EXCEEDED;
-        ErrorResponse response = new ErrorResponse(clock, errorInfo, request);
-        return ResponseEntity.status(errorInfo.getStatus())
-                .header(HttpHeaders.RETRY_AFTER, "1")
-                .body(response);
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
