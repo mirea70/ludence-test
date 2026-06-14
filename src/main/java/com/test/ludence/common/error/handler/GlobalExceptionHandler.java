@@ -56,6 +56,14 @@ public class GlobalExceptionHandler {
         return createResponse(exception.getErrorInfo(), request);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
+            IllegalArgumentException exception,
+            HttpServletRequest request
+    ) {
+        return createResponse(CommonErrorInfo.INVALID_REQUEST, request);
+    }
+
     @ExceptionHandler({BindException.class, org.springframework.web.bind.MethodArgumentNotValidException.class})
     public ResponseEntity<ErrorResponse> handleValidationException(
             BindException exception,

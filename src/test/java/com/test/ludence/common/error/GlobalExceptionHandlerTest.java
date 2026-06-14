@@ -71,7 +71,25 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("필수 헤더가 누락되면 400을 반환한다")
+    @DisplayName("IllegalArgumentException이 발생하면 400을 반환한다.")
+    void returnsBadRequest_whenIllegalArgumentExceptionIsThrown() {
+        // given
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/auth/login");
+        MultipartProperties multipartProperties = new MultipartProperties();
+
+        // when
+        ResponseEntity<ErrorResponse> response = new GlobalExceptionHandler(CLOCK, multipartProperties)
+                .handleIllegalArgumentException(new IllegalArgumentException("invalid"), request);
+
+        // then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().code()).isEqualTo("COMMON_003");
+        assertThat(response.getBody().path()).isEqualTo("/auth/login");
+    }
+
+    @Test
+    @DisplayName("returns 400 when request header is missing")
     void returnsBadRequest_whenRequestHeaderIsMissing() {
         // given
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/posts/1");
