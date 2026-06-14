@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,7 +39,7 @@ class PostCreateServiceTest {
         PostCreateService service = new PostCreateService(transactionService, imageStorage);
         StagedImage stagedImage = new StagedImage(IMAGE_KEY, Path.of("temporary"));
         PostCreateRequest request = createRequest();
-        given(imageStorage.stage(org.mockito.ArgumentMatchers.any())).willReturn(stagedImage);
+        given(imageStorage.stage(ArgumentMatchers.any())).willReturn(stagedImage);
         given(transactionService.createPost(1L, request.title(), request.description(), stagedImage))
                 .willReturn(new PostIdResponse(10L));
 
@@ -48,7 +49,7 @@ class PostCreateServiceTest {
         // then
         assertThat(response.id()).isEqualTo(10L);
         InOrder inOrder = inOrder(imageStorage, transactionService);
-        inOrder.verify(imageStorage).stage(org.mockito.ArgumentMatchers.any());
+        inOrder.verify(imageStorage).stage(ArgumentMatchers.any());
         inOrder.verify(transactionService).createPost(1L, request.title(), request.description(), stagedImage);
     }
 
@@ -59,7 +60,7 @@ class PostCreateServiceTest {
         PostCreateService service = new PostCreateService(transactionService, imageStorage);
         StagedImage stagedImage = new StagedImage(IMAGE_KEY, Path.of("temporary"));
         PostCreateRequest request = createRequest();
-        given(imageStorage.stage(org.mockito.ArgumentMatchers.any())).willReturn(stagedImage);
+        given(imageStorage.stage(ArgumentMatchers.any())).willReturn(stagedImage);
         given(transactionService.createPost(1L, request.title(), request.description(), stagedImage))
                 .willThrow(new IllegalStateException("save failed"));
 

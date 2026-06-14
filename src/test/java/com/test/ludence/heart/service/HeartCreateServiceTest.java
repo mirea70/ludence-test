@@ -16,6 +16,7 @@ import com.test.ludence.recommendation.service.RecommendationRefreshService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -52,7 +53,7 @@ class HeartCreateServiceTest {
         InOrder inOrder = inOrder(postHeartCountRepository, postRepository, heartRepository);
         inOrder.verify(postHeartCountRepository).increase(10L);
         inOrder.verify(postRepository).existsByIdAndDeletedAtIsNull(10L);
-        inOrder.verify(heartRepository).saveAndFlush(org.mockito.ArgumentMatchers.any());
+        inOrder.verify(heartRepository).saveAndFlush(ArgumentMatchers.any());
         verify(recommendationRefreshService).requestRefresh(1L);
     }
 
@@ -90,7 +91,7 @@ class HeartCreateServiceTest {
         // given
         given(postHeartCountRepository.increase(10L)).willReturn(1L);
         given(postRepository.existsByIdAndDeletedAtIsNull(10L)).willReturn(true);
-        given(heartRepository.saveAndFlush(org.mockito.ArgumentMatchers.any()))
+        given(heartRepository.saveAndFlush(ArgumentMatchers.any()))
                 .willThrow(DataIntegrityViolationException.class);
         HeartCreateService service = service();
 

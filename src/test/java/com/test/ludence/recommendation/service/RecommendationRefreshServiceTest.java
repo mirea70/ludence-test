@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -54,7 +55,7 @@ class RecommendationRefreshServiceTest {
 
         // then
         verify(userRepository).findActiveByIdForUpdate(1L);
-        verify(recommendationStateRepository).save(org.mockito.ArgumentMatchers.any(RecommendationState.class));
+        verify(recommendationStateRepository).save(ArgumentMatchers.any(RecommendationState.class));
     }
 
     private RecommendationRefreshService service() {

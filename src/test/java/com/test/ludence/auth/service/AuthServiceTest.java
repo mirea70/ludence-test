@@ -22,6 +22,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -52,13 +53,13 @@ class AuthServiceTest {
         AuthRequest request = new AuthRequest("sunny", "password123");
         given(userRepository.existsByUsernameValue("sunny")).willReturn(false);
         given(passwordHasher.hash("password123")).willReturn("encoded-password");
-        given(userRepository.saveAndFlush(org.mockito.ArgumentMatchers.any(User.class)))
+        given(userRepository.saveAndFlush(ArgumentMatchers.any(User.class)))
                 .willAnswer(invocation -> {
                     User user = invocation.getArgument(0);
                     ReflectionTestUtils.setField(user, "id", 1L);
                     return user;
                 });
-        given(jwtTokenProvider.createToken(org.mockito.ArgumentMatchers.any())).willReturn("jwt-token");
+        given(jwtTokenProvider.createToken(ArgumentMatchers.any())).willReturn("jwt-token");
 
         // when
         TokenResponse response = authService.signup(request);
@@ -69,7 +70,7 @@ class AuthServiceTest {
         verify(userRepository).saveAndFlush(captor.capture());
         assertThat(captor.getValue().getPassword()).isEqualTo("encoded-password");
         assertThat(captor.getValue().getCreatedAt()).isEqualTo(clock.instant());
-        verify(recommendationStateRepository).save(org.mockito.ArgumentMatchers.any(RecommendationState.class));
+        verify(recommendationStateRepository).save(ArgumentMatchers.any(RecommendationState.class));
     }
 
     @Test

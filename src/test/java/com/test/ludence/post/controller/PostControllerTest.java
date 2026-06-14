@@ -21,10 +21,13 @@ import com.test.ludence.post.dto.response.PostDetailResponse;
 import com.test.ludence.post.dto.response.PostResponse;
 import com.test.ludence.support.ControllerTestSupport;
 import java.time.Instant;
+
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
@@ -49,8 +52,8 @@ class PostControllerTest extends ControllerTestSupport {
         );
         MockMultipartFile image = new MockMultipartFile("image", "image.png", "image/png", new byte[10]);
         given(postCreateService.createPost(
-                org.mockito.ArgumentMatchers.eq(1L),
-                org.mockito.ArgumentMatchers.any(PostCreateRequest.class)
+                ArgumentMatchers.eq(1L),
+                ArgumentMatchers.any(PostCreateRequest.class)
         )).willReturn(new PostIdResponse(10L));
 
         // when & then
@@ -62,10 +65,10 @@ class PostControllerTest extends ControllerTestSupport {
                 .andExpect(header().string("Location", "/posts/10"))
                 .andExpect(jsonPath("$.id").value(10));
         ArgumentCaptor<PostCreateRequest> requestCaptor = ArgumentCaptor.forClass(PostCreateRequest.class);
-        verify(postCreateService).createPost(org.mockito.ArgumentMatchers.eq(1L), requestCaptor.capture());
-        org.assertj.core.api.Assertions.assertThat(requestCaptor.getValue().title()).isEqualTo("title");
-        org.assertj.core.api.Assertions.assertThat(requestCaptor.getValue().description()).isEqualTo("description");
-        org.assertj.core.api.Assertions.assertThat(requestCaptor.getValue().image()).isSameAs(image);
+        verify(postCreateService).createPost(ArgumentMatchers.eq(1L), requestCaptor.capture());
+        Assertions.assertThat(requestCaptor.getValue().title()).isEqualTo("title");
+        Assertions.assertThat(requestCaptor.getValue().description()).isEqualTo("description");
+        Assertions.assertThat(requestCaptor.getValue().image()).isSameAs(image);
     }
 
     @Test

@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ByteArrayResource;
@@ -57,6 +58,6 @@ class PostImageServiceTest {
         // when & then
         assertThatThrownBy(() -> service.getImage(1L))
                 .isInstanceOf(BusinessException.class);
-        verify(imageStorage, never()).get(org.mockito.ArgumentMatchers.anyString());
+        verify(imageStorage, never()).get(ArgumentMatchers.anyString());
     }
 }

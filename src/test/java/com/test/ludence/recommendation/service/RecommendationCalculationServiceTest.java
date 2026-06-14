@@ -14,6 +14,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,7 +43,7 @@ class RecommendationCalculationServiceTest {
     void replacesUserRecommendationsWithDistinctCandidates() {
         // given
         RecommendationState state = RecommendationState.create(1L);
-        given(recommendationStateRepository.findByUserIdForUpdate(1L)).willReturn(java.util.Optional.of(state));
+        given(recommendationStateRepository.findByUserIdForUpdate(1L)).willReturn(Optional.of(state));
         given(candidateQueryRepository.findByHeartedAuthors(1L, 40)).willReturn(List.of(2L, 3L));
         given(candidateQueryRepository.findByViewedAuthors(1L, NOW.minusSeconds(604800), 40)).willReturn(List.of(3L, 4L));
         given(candidateQueryRepository.findByRecentSearches(1L, NOW.minusSeconds(604800), 40)).willReturn(List.of(4L, 5L));

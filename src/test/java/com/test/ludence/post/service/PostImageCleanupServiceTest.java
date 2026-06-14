@@ -42,7 +42,7 @@ class PostImageCleanupServiceTest {
         Path orphanImage = Files.write(directory.resolve(ORPHAN_IMAGE_KEY), new byte[] {2});
         Path freshOrphanImage = Files.write(directory.resolve(FRESH_ORPHAN_IMAGE_KEY), new byte[] {3});
         Files.setLastModifiedTime(referencedImage, FileTime.from(NOW.minusSeconds(172800)));
-        Files.setLastModifiedTime(orphanImage, FileTime.from(NOW.minusSeconds(172800)));
+        Files.setLastModifiedTime(orphanImage, FileTime.from(NOW.minusSeconds(172801)));
         Files.setLastModifiedTime(freshOrphanImage, FileTime.from(NOW.minusSeconds(3600)));
         given(postRepository.findAllImageKeys()).willReturn(List.of(REFERENCED_IMAGE_KEY));
         PostImageCleanupService cleanupService = cleanupService();

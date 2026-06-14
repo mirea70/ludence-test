@@ -27,6 +27,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -62,7 +63,7 @@ class PostCreateTransactionServiceTest {
         User user = User.create("sunny", "encoded-password", clock.instant());
         StagedImage stagedImage = new StagedImage(IMAGE_KEY, Path.of("temporary"));
         given(userRepository.findActiveByIdForUpdate(1L)).willReturn(Optional.of(user));
-        given(postRepository.saveAndFlush(org.mockito.ArgumentMatchers.any(Post.class))).willAnswer(invocation -> {
+        given(postRepository.saveAndFlush(ArgumentMatchers.any(Post.class))).willAnswer(invocation -> {
             Post post = invocation.getArgument(0);
             ReflectionTestUtils.setField(post, "id", 10L);
             return post;
