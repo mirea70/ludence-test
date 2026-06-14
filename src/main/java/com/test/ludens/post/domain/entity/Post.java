@@ -6,14 +6,8 @@ import com.test.ludens.common.error.info.PostErrorInfo;
 import com.test.ludens.post.domain.vo.PostDescription;
 import com.test.ludens.post.domain.vo.PostImageKey;
 import com.test.ludens.post.domain.vo.PostTitle;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.Instant;
 import java.util.Objects;
 import lombok.Getter;
@@ -25,7 +19,13 @@ import lombok.Getter;
         indexes = @Index(
                 name = "idx_posts_author_created",
                 columnList = "author_id, created_at DESC, id DESC"
-        )
+        ),
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_posts_image_key",
+                        columnNames = {"image_key"}
+                )
+        }
 )
 public class Post {
 

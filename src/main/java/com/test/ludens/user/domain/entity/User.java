@@ -4,19 +4,22 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.test.ludens.common.error.exception.DomainException;
 import com.test.ludens.common.error.info.UserErrorInfo;
 import com.test.ludens.user.domain.vo.Username;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.Instant;
 import lombok.Getter;
 
 @Getter
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_users_username",
+                        columnNames = {"username"}
+                )
+        }
+)
 public class User {
 
     @Id
