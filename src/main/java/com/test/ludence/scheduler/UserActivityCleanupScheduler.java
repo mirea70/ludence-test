@@ -13,7 +13,7 @@ public class UserActivityCleanupScheduler {
 
     private final UserActivityCleanupService cleanupService;
 
-    @Scheduled(fixedDelay = 1, initialDelay = 1, timeUnit = TimeUnit.DAYS)
+    @Scheduled(cron = "0 0 0 * * *")
     public void cleanup() {
         cleanupService.cleanup();
     }
