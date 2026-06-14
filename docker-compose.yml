@@ -5,15 +5,15 @@ services:
       dockerfile: Dockerfile
       target: db
     environment:
-      POSTGRES_DB: ludence
-      POSTGRES_USER: ludence
-      POSTGRES_PASSWORD: ludence
+      POSTGRES_DB: ludens
+      POSTGRES_USER: ludens
+      POSTGRES_PASSWORD: ludens
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ludence -d ludence"]
+      test: ["CMD-SHELL", "pg_isready -U ludens -d ludens"]
       interval: 1s
       timeout: 2s
       retries: 30
@@ -25,9 +25,9 @@ services:
       dockerfile: Dockerfile
       target: app
     environment:
-      DB_URL: jdbc:postgresql://db:5432/ludence
-      DB_USERNAME: ludence
-      DB_PASSWORD: ludence
+      DB_URL: jdbc:postgresql://db:5432/ludens
+      DB_USERNAME: ludens
+      DB_PASSWORD: ludens
       JPA_DDL_AUTO: update
       IMAGE_STORAGE_DIRECTORY: /data/images
     ports:

@@ -7,11 +7,11 @@ server:
 
 spring:
   application:
-    name: ludence
+    name: ludens
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/ludence}
-    username: ${DB_USERNAME:ludence}
-    password: ${DB_PASSWORD:ludence}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/ludens}
+    username: ${DB_USERNAME:ludens}
+    password: ${DB_PASSWORD:ludens}
     hikari:
       maximum-pool-size: 20
       connection-timeout: 2000
@@ -28,5 +28,5 @@ storage:
 
 auth:
   jwt:
-    secret: ${JWT_SECRET:ludence-local-jwt-secret-change-me}
+    secret: ${JWT_SECRET:ludens-local-jwt-secret-change-me}
     expiration-seconds: ${JWT_EXPIRATION_SECONDS:86400}
